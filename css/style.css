@@ -1,0 +1,137 @@
+@font-face {
+	font-family: 'latowf100';
+	src: url('../fonts/lato-thin-webfont.eot');
+	src: url('../fonts/lato-thin-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('../fonts/lato-thin-webfont.woff2') format('woff2'),
+		 url('../fonts/lato-thin-webfont.woff') format('woff'),
+		 url('../fonts/lato-thin-webfont.ttf') format('truetype'),
+		 url('../fonts/lato-thin-webfont.svg#latothin') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'latowf200';
+	src: url('../fonts/lato-light-webfont.eot');
+	src: url('../fonts/lato-light-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('../fonts/lato-light-webfont.woff2') format('woff2'),
+		 url('../fonts/lato-light-webfont.woff') format('woff'),
+		 url('../fonts/lato-light-webfont.ttf') format('truetype'),
+		 url('../fonts/lato-light-webfont.svg#latolight') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'latowf300';
+	src: url('../fonts/lato-regular-webfont.eot');
+	src: url('../fonts/lato-regular-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('../fonts/lato-regular-webfont.woff2') format('woff2'),
+		 url('../fonts/lato-regular-webfont.woff') format('woff'),
+		 url('../fonts/lato-regular-webfont.ttf') format('truetype'),
+		 url('../fonts/lato-regular-webfont.svg#latoregular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+@font-face {
+	font-family: 'latowf400';
+	src: url('../fonts/lato-medium-webfont.eot');
+	src: url('../fonts/lato-medium-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('../fonts/lato-medium-webfont.woff2') format('woff2'),
+		 url('../fonts/lato-medium-webfont.woff') format('woff'),
+		 url('../fonts/lato-medium-webfont.ttf') format('truetype'),
+		 url('../fonts/lato-medium-webfont.svg#latomedium') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+html,
+body {
+	background: #000 !important;
+	cursor: crosshair;
+	height: 100%;
+	overflow: hidden;
+}
+
+.font-load {
+	height: 0;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	visibility: hidden;
+	width: 0;
+}
+
+.font-1 { font-family: 'latowf100'; }
+.font-2 { font-family: 'latowf200'; }
+.font-3 { font-family: 'latowf300'; }
+.font-4 { font-family: 'latowf400'; }
+
+body:after {
+	background: url(../images/px.png);
+	bottom: 0;
+	content: '';
+	left: 0;
+	opacity: 0.2;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	top: 0;
+	will-change: transform;
+	z-index: 3;
+}
+
+.level-menu {
+	display: none;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	top: 50%;
+	transform: translateY( -50% );
+	z-index: 100;
+}
+
+.select .level-menu {
+	display: block;
+}
+
+.level {
+	clear: both;
+	color: hsla(0, 0%, 100%, 0.5);
+	float: left;
+	font-family: monospace;
+	font-size: 12px;
+	text-decoration: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+canvas {
+	cursor: crosshair;
+}
+
+.state-menu canvas {
+	-webkit-animation: party 7000ms -5000ms linear infinite;
+	animation: party 7000ms -5000ms linear infinite;
+}
+
+.state-win canvas {
+	-webkit-animation: party 2000ms linear infinite;
+	animation: party 2000ms linear infinite;
+}
+
+.perf canvas {
+	-webkit-animation: none;
+	animation: none;
+}
+
+@keyframes party {
+	100% {
+		-webkit-filter: hue-rotate( 360deg );
+	}
+}
