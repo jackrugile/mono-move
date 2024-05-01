@@ -136,19 +136,22 @@ $.statePlay.step = function () {
 
   // handle track flash
   if (this.trackChangeTick > 0) {
-    this.trackChangeTick--;
+    this.trackChangeTick -= $.game.dtNorm;
   }
 
   // handle death flash
   if (this.deathTick > 0) {
-    this.deathTick--;
+    this.deathTick -= $.game.dtNorm;
   }
 
   // spotlight
   var x = Math.min(Math.max(0, this.hero.x), $.game.width);
   var y = Math.min(Math.max(0, this.hero.y), $.game.height);
-  this.lightPosition.x += (x - this.lightPosition.x) * 0.2;
-  this.lightPosition.y += (y - this.lightPosition.y) * 0.2;
+
+  this.lightPosition.x +=
+    (x - this.lightPosition.x) * (1 - Math.exp(-0.15 * $.game.dtNorm));
+  this.lightPosition.y +=
+    (y - this.lightPosition.y) * (1 - Math.exp(-0.15 * $.game.dtNorm));
 
   this.handleScreenShake();
   this.blocks.each("step");

@@ -4,12 +4,13 @@ Core
 
 ==============================================================================*/
 
-var width = 2560,
-  height = 1440,
-  ratio = height / width,
-  unit = 80,
-  base,
-  scale;
+let width = 2560;
+let height = 1440;
+// width = width / 4;
+// height = height / 4;
+let ratio = height / width;
+let unit = width / 32;
+let scale;
 
 if (window.innerWidth > window.innerHeight / ratio) {
   scale = window.innerHeight / ratio / width;
@@ -35,9 +36,6 @@ $.game.setScale = function () {
     scale = (window.innerWidth * ratio) / height;
   }
 
-  //base = unit / height * 100000;
-  //scale = $.snapTo( scale * 100000, base );
-  //scale = scale / 100000;
   this.scale = scale;
 };
 
@@ -67,19 +65,19 @@ $.game.create = function () {
 
   // common units
   /*
-	1
-	2
-	4
-	5
-	8
-	10
-	16
-	20
-	32
-	40
-	80
-	160
-	*/
+  1
+  2
+  4
+  5
+  8
+  10
+  16
+  20
+  32
+  40
+  80
+  160
+  */
 
   this.unit = unit;
   this.lastRunTime = null;

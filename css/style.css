@@ -48,12 +48,17 @@
   font-style: normal;
 }
 
+/* html {
+  perspective: 1000px;
+} */
+
 html,
 body {
   background: #000 !important;
   cursor: crosshair;
   height: 100%;
   overflow: hidden;
+  /* transition: transform 300ms; */
 }
 
 .font-load {
@@ -89,8 +94,11 @@ body:after {
   position: absolute;
   right: 0;
   top: 0;
-  will-change: transform;
   z-index: 3;
+}
+
+.perf body:after {
+  display: none;
 }
 
 .level-menu {

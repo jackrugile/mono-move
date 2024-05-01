@@ -14,12 +14,12 @@ $.spark.prototype.init = function (opt) {
 };
 
 $.spark.prototype.step = function () {
-  this.vel *= this.drag;
-  this.x += Math.cos(this.angle) * this.vel;
-  this.y += Math.sin(this.angle) * this.vel;
-  this.rotation += this.spin;
+  this.vel += (0 - this.vel) * (1 - Math.exp(-(1 - this.drag) * $.game.dtNorm));
+  this.x += Math.cos(this.angle) * this.vel * $.game.dtNorm;
+  this.y += Math.sin(this.angle) * this.vel * $.game.dtNorm;
+  this.rotation += this.spin * $.game.dtNorm;
 
-  this.life -= this.decay;
+  this.life -= this.decay * $.game.dtNorm;
   this.alpha = this.life;
   this.scale = this.life;
 

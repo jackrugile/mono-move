@@ -16,45 +16,48 @@ $.block.prototype.init = function (opt) {
 };
 
 $.block.prototype.step = function () {
-  this.tick++;
+  this.tick += $.game.dtNorm;
 
   if (this.destroying) {
     this.scaleTarget = 0;
-  } else if (this.tick * 20 > this.y) {
+  } else if (this.tick * 40 > this.y) {
     this.scaleTarget = 1;
   }
-  this.scale += (this.scaleTarget - this.scale) * 0.1;
+
+  this.scale +=
+    (this.scaleTarget - this.scale) * (1 - Math.exp(-0.1 * $.game.dtNorm));
 
   if (this.destroying) {
     this.rotationTarget = $.PI;
   } else if (
-    this.tick * 20 > this.y &&
+    this.tick * 40 > this.y &&
     this.track == $.game.state.currentTrack
   ) {
     this.rotationTarget = 0;
   } else {
     this.rotationTarget = $.HALFPI;
   }
-  this.rotation += (this.rotationTarget - this.rotation) * 0.1;
+  this.rotation +=
+    (this.rotationTarget - this.rotation) *
+    (1 - Math.exp(-0.1 * $.game.dtNorm));
 
   if (this.destroying) {
     this.alphaTarget = 0;
   } else if (
-    this.tick * 20 > this.y &&
+    this.tick * 40 > this.y &&
     this.track == $.game.state.currentTrack
   ) {
     this.alphaTarget = 1;
   } else {
     this.alphaTarget = 0.25;
   }
-  this.alpha += (this.alphaTarget - this.alpha) * 0.1;
+  this.alpha +=
+    (this.alphaTarget - this.alpha) * (1 - Math.exp(-0.1 * $.game.dtNorm));
 
   // handle hit
   if (this.hitTick > 0) {
-    this.hitTick--;
+    this.hitTick -= $.game.dtNorm;
   }
-
-  this.tick++;
 
   if (this.destroying) {
     if (this.scale < 0.001) {

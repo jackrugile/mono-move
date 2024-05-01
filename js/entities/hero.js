@@ -3,13 +3,13 @@ $.hero = function (opt) {
 
   this.radius = $.game.unit / 2;
   this.vy = 0;
-  this.gap = 2;
-  this.gapMove = 8;
+  this.gap = this.radius / 20;
+  this.gapMove = this.radius / 5;
   this.rotation = 0;
-  this.jumpTickMax = 15;
+  this.jumpTickMax = 30;
   this.jumpTick = 0;
   this.grav = 2;
-  this.buffer = 400;
+  this.buffer = this.radius * 10;
   this.impactAngle = 0;
   this.rolling = false;
   this.panningValue = 0;
@@ -26,7 +26,7 @@ $.hero = function (opt) {
   this.scratchCtx.fillStyle = "hsla(0, 0%, 100%, 0.5)";
   this.scratchCtx.fill();
   this.scratchCtx.beginPath();
-  this.scratchCtx.arc(this.radius - 10, this.radius + 0, this.radius, 0, $.TAU);
+  this.scratchCtx.arc(this.radius * 0.7, this.radius, this.radius, 0, $.TAU);
   this.scratchCtx.globalCompositeOperation = "destination-out";
   this.scratchCtx.fillStyle = "#fff";
   this.scratchCtx.fill();
@@ -192,13 +192,9 @@ $.hero.prototype.step = function () {
 
   // handle rotation based on gravity
   if (this.grav > 0) {
-    this.rotation += this.rolling
-      ? (this.vx / 80) * $.game.dtNorm
-      : (this.vx / 140) * $.game.dtNorm;
+    this.rotation += (this.vx / this.radius) * $.game.dtNorm;
   } else {
-    this.rotation -= this.rolling
-      ? (this.vx / 80) * $.game.dtNorm
-      : (this.vx / 140) * $.game.dtNorm;
+    this.rotation -= (this.vx / this.radius) * $.game.dtNorm;
   }
 
   // handle jump pulse
@@ -257,32 +253,31 @@ $.hero.prototype.step = function () {
   }
 
   // bubble trail
-  /*
-    $.game.state.explosions.create({
-      pool: $.game.state.explosions,
-      x: this.x,
-      y: this.y,
-      radius: $.rand( 1, 5 ),
-      decay: 0.01
-    });
-  */
-  /*
-    var angle = $.rand( 0, $.TAU ),
-      length = $.rand( 0, this.radius );
 
-    $.game.state.explosions.create({
-      pool: $.game.state.explosions,
-      x: this.x + Math.cos( angle ) * length,
-      y: this.y + Math.sin( angle ) * length,
-      radius: $.rand( 1, 3 ),
-      decay: 0.05
-    });
-  */
+  // $.game.state.explosions.create({
+  //   pool: $.game.state.explosions,
+  //   x: this.x,
+  //   y: this.y,
+  //   radius: $.rand( 1, 5 ),
+  //   decay: 0.01
+  // });
+
+  // var angle = $.rand( 0, $.TAU ),
+  //   length = $.rand( 0, this.radius );
+
+  // $.game.state.explosions.create({
+  //   pool: $.game.state.explosions,
+  //   x: this.x + Math.cos( angle ) * length,
+  //   y: this.y + Math.sin( angle ) * length,
+  //   radius: $.rand( 1, 3 ),
+  //   decay: 0.05
+  // });
 
   //3d tilt
-  /*var xdeg = ( ( this.y / $.game.height ) - 0.5 ) * 45,
-    ydeg = ( ( this.x / $.game.width ) - 0.5 ) * -45;
-  $.body.style.transform = 'rotateX(' + xdeg + 'deg) rotateY(' + ydeg + 'deg)';*/
+  // var xdeg = (this.y / $.game.height - 0.5) * 15,
+  //   ydeg = (this.x / $.game.width - 0.5) * -15;
+  // $.body.style.transform =
+  //   "scale(0.7) rotateX(" + xdeg + "deg) rotateY(" + ydeg + "deg)";
 
   this.tick += $.game.dtNorm;
 };
@@ -318,8 +313,8 @@ $.hero.prototype.render = function () {
   $.ctx.rotate(this.rotation);
   !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   // weird bug in firefox
-  !$.game.isPerf && $.game.isChrome && $.ctx.shadowBlur(30);
-  !$.game.isPerf && $.game.isChrome && $.ctx.shadowColor("#fff");
+  // !$.game.isPerf && $.game.isChrome && $.ctx.shadowBlur(30);
+  // !$.game.isPerf && $.game.isChrome && $.ctx.shadowColor("#fff");
   var alpha = 0.75 + Math.sin(this.tick * Math.abs(this.vx) * 0.01) * 0.25;
   this.renderWedge("hsla(0, 0%, 100%, " + alpha + ")", 0, 0);
   this.renderWedge("hsla(120, 0%, 100%, " + alpha + ")", $.THIRDTAU, 0);
@@ -364,71 +359,72 @@ $.hero.prototype.render = function () {
   }
 
   // cray cray lighting and trails
-  /*$.ctx.save();
-    var sh = 10;
-    $.ctx.beginPath();
-    for( var i = 0, length = this.trail.length; i < length; i++ ) {
-      var p = this.trail[ i ];
-      if( i == 0 ) {
-        $.ctx.moveTo( p[ 0 ], p[ 1 ] );
-      } else {
-        $.ctx.lineTo( p[ 0 ], p[ 1 ] );
-      }
+  // $.ctx.save();
+  // var sh = 10;
+  // $.ctx.beginPath();
+  // for (var i = 0, length = this.trail.length; i < length; i++) {
+  //   var p = this.trail[i];
+  //   if (i == 0) {
+  //     $.ctx.moveTo(p[0], p[1]);
+  //   } else {
+  //     $.ctx.lineTo(p[0], p[1]);
+  //   }
 
-      if( i == 0 ) {
-        $.ctx.moveTo( p[ 0 ] + $.rand( -sh, sh ), p[ 1 ] + $.rand( -sh, sh ) );
-      } else {
-        $.ctx.lineTo( p[ 0 ] + $.rand( -sh, sh ), p[ 1 ] + $.rand( -sh, sh ) );
-      }
-    }
-    $.ctx.strokeStyle( '#fff' );
-    $.ctx.lineWidth( 3 );
-    !$.game.isPerf && $.ctx.globalCompositeOperation( 'overlay' );
-    $.ctx.stroke();
-  $.ctx.restore();
+  //   if (i == 0) {
+  //     $.ctx.moveTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
+  //   } else {
+  //     $.ctx.lineTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
+  //   }
+  // }
+  // $.ctx.strokeStyle("#fff");
+  // $.ctx.lineWidth(3);
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // $.ctx.stroke();
+  // $.ctx.restore();
 
-  $.ctx.save();
-    var sh = 5,
-      amt = ~~$.rand( 10, 20 );
-    $.ctx.beginPath();
-    for( var i = 0; i < amt; i++ ) {
-      var p = this.trail[ i ];
+  // $.ctx.save();
+  // var sh = 5,
+  //   amt = ~~$.rand(10, 20);
+  // $.ctx.beginPath();
+  // for (var i = 0; i < amt; i++) {
+  //   var p = this.trail[i];
 
-      var x = this.x + Math.cos( ( i / amt ) * $.TAU ) * this.radius + $.rand( -sh, sh );
-      var y = this.y + Math.sin( ( i / amt ) * $.TAU ) * this.radius + $.rand( -sh, sh );
+  //   var x =
+  //     this.x + Math.cos((i / amt) * $.TAU) * this.radius + $.rand(-sh, sh);
+  //   var y =
+  //     this.y + Math.sin((i / amt) * $.TAU) * this.radius + $.rand(-sh, sh);
 
-      if( i == 0 ) {
-        $.ctx.moveTo( x, y );
-      } else {
-        $.ctx.lineTo( x, y );
-      }
-    }
-    $.ctx.closePath()
-    $.ctx.strokeStyle( '#fff' );
-    $.ctx.lineWidth( $.rand( 1, 10 ) );
-    !$.game.isPerf && $.ctx.globalCompositeOperation( 'overlay' );
-    $.ctx.stroke();
-  $.ctx.restore();
+  //   if (i == 0) {
+  //     $.ctx.moveTo(x, y);
+  //   } else {
+  //     $.ctx.lineTo(x, y);
+  //   }
+  // }
+  // $.ctx.closePath();
+  // $.ctx.strokeStyle("#fff");
+  // $.ctx.lineWidth($.rand(1, 10));
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // $.ctx.stroke();
+  // $.ctx.restore();
 
-  $.ctx.save();
-    $.ctx.beginPath();
+  // $.ctx.save();
+  // $.ctx.beginPath();
 
-    var angle = $.rand( 0, $.TAU );
-    var x1 = this.x + Math.cos( angle ) * this.radius + $.rand( -sh, sh );
-    var y1 = this.y + Math.sin( angle ) * this.radius + $.rand( -sh, sh );
-    var x2 = this.x + Math.cos( angle + $.PI ) * this.radius + $.rand( -sh, sh );
-    var y2 = this.y + Math.sin( angle + $.PI ) * this.radius + $.rand( -sh, sh );
+  // var angle = $.rand(0, $.TAU);
+  // var x1 = this.x + Math.cos(angle) * this.radius + $.rand(-sh, sh);
+  // var y1 = this.y + Math.sin(angle) * this.radius + $.rand(-sh, sh);
+  // var x2 = this.x + Math.cos(angle + $.PI) * this.radius + $.rand(-sh, sh);
+  // var y2 = this.y + Math.sin(angle + $.PI) * this.radius + $.rand(-sh, sh);
 
-    $.ctx.moveTo( x1, y1 );
-    $.ctx.lineTo( x2, y2 );
+  // $.ctx.moveTo(x1, y1);
+  // $.ctx.lineTo(x2, y2);
 
-    $.ctx.closePath()
-    $.ctx.strokeStyle( '#fff' );
-    $.ctx.lineWidth( $.rand( 1, 10 ) );
-    !$.game.isPerf && $.ctx.globalCompositeOperation( 'overlay' );
-    $.ctx.stroke();
-  $.ctx.restore();
-  */
+  // $.ctx.closePath();
+  // $.ctx.strokeStyle("#fff");
+  // $.ctx.lineWidth($.rand(1, 10));
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // $.ctx.stroke();
+  // $.ctx.restore();
 };
 
 $.hero.prototype.destroy = function () {};
@@ -453,7 +449,7 @@ $.hero.prototype.jump = function () {
     pool: $.game.state.explosions,
     x: this.x,
     y: this.y,
-    radius: 50,
+    radius: this.radius,
     decay: 0.14,
   });
 };
@@ -494,6 +490,7 @@ $.hero.prototype.die = function () {
       burst: true,
     });
   }
+
   // non-burst
   for (var i = 0, length = $.game.isPerf ? 10 : 30; i < length; i++) {
     var size = $.rand(1, 4);
@@ -511,12 +508,16 @@ $.hero.prototype.die = function () {
     });
   }
 
-  for (var i = 0; i < 3; i++) {
+  let count = 3;
+  let baseRadius = $.game.unit * 0.375;
+  let growthRadius = $.game.unit * 0.1875;
+  for (var i = 0; i < count; i++) {
+    let radius = baseRadius + i * growthRadius;
     $.game.state.explosions.create({
       pool: $.game.state.explosions,
       x: hero.x,
       y: hero.y,
-      radius: 30 + i * 15,
+      radius: radius,
       decay: 0.02,
     });
   }

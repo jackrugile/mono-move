@@ -8,7 +8,7 @@ $.explosion.prototype.init = function (opt) {
 };
 
 $.explosion.prototype.step = function () {
-  this.life -= this.decay;
+  this.life -= this.decay * $.game.dtNorm;
   this.alpha = this.life;
   this.scale = 2 - this.life;
 
