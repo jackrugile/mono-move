@@ -144,20 +144,20 @@ $.stateWin.render = function () {
   // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");
-  $.ctx.font(`${120 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(120 / $.game.divisor)}px latowf400`);
   $.ctx.fillStyle("#fff");
   $.ctx.fillText(
     "VICTORY!",
     $.game.width / 2,
     $.game.height / 2 + 35 / $.game.divisor
   );
-  $.ctx.font(`${64 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(64 / $.game.divisor)}px latowf400`);
   $.ctx.fillText(
     statusText,
     $.game.width / 2,
     $.game.height - $.game.height / 6 - 20 / $.game.divisor
   );
-  $.ctx.font(`${34 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(34 / $.game.divisor)}px latowf400`);
   $.ctx.fillText(
     "[ SPACE / CLICK ] RETURN TO MENU",
     $.game.width / 2,

@@ -105,7 +105,7 @@ $.stateMenu.render = function () {
   // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.titleAlpha + ")");
 
-  $.ctx.font(`${50 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
   $.ctx.fillText(
@@ -115,7 +115,7 @@ $.stateMenu.render = function () {
   );
 
   $.ctx.textBaseline("bottom");
-  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
 
   $.ctx.textAlign("left");
   $.ctx.fillText(

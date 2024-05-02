@@ -434,7 +434,7 @@ $.statePlay.renderUI = function () {
   // tutorial
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
-  $.ctx.font(`${64 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(64 / $.game.divisor)}px latowf400`);
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.tutTextAlpha + ")");
   $.ctx.fillText(
     "[ SPACE / CLICK ] TO SWITCH GRAVITY",
@@ -450,7 +450,7 @@ $.statePlay.renderUI = function () {
 
   // styles
   $.ctx.textBaseline("top");
-  $.ctx.font(`${75 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(75 / $.game.divisor)}px latowf400`);
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.textAlpha + ")");
 
   // death display
@@ -471,7 +471,7 @@ $.statePlay.renderUI = function () {
   );
 
   // death label
-  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
   $.ctx.textAlign("left");
   $.ctx.fillText(
     "DEATHS",
@@ -489,7 +489,7 @@ $.statePlay.renderUI = function () {
 
   // controls display
   $.ctx.textBaseline("bottom");
-  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
   $.ctx.textAlign("left");
   $.ctx.fillText(
     "[ P ] PAUSE",
@@ -515,14 +515,14 @@ $.statePlay.renderPause = function () {
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");
 
-  $.ctx.font(`${90 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(90 / $.game.divisor)}px latowf400`);
   $.ctx.fillStyle("#fff");
   $.ctx.fillText(
     "PAUSED",
     $.game.width / 2,
     $.game.height / 2 - 40 / $.game.divisor
   );
-  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
+  $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
   $.ctx.fillText(
     "[ P ] RESUME                [ M ] MUTE                [ ESC ] MENU",
     $.game.width / 2,
