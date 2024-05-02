@@ -5,6 +5,7 @@ Core
 ==============================================================================*/
 
 let divisor = 2;
+divisor = 2560 / window.innerWidth / window.devicePixelRatio;
 let width = 2560 / divisor;
 let height = 1440 / divisor;
 let ratio = height / width;
