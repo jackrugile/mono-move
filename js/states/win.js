@@ -31,8 +31,6 @@ $.stateWin.enter = function () {
   if ($.game.lastRunDeaths < $.storage.get("deathBest")) {
     $.storage.set("deathBest", $.game.lastRunDeaths);
   }
-
-  //console.log( $.game.lastRunTime, $.msToString( $.game.lastRunTime ), $.game.lastRunDeaths );
 };
 
 $.stateWin.leave = function () {
@@ -45,7 +43,7 @@ $.stateWin.step = function () {
   if ($.rand(0, 1) > 0.96) {
     var x = $.rand(0, $.game.width),
       y = $.rand(0, $.game.height),
-      radius = $.rand(40, 160);
+      radius = $.rand(40, 160) / $.game.divisor;
 
     for (var i = 0, length = $.game.isPerf ? 5 : 15; i < length; i++) {
       var size = $.rand(1, 4);
@@ -54,7 +52,7 @@ $.stateWin.step = function () {
         x: x + $.rand(0, Math.cos((i / length) * $.TAU) * radius),
         y: y + $.rand(0, Math.sin((i / length) * $.TAU) * radius),
         angle: (i / length) * $.TAU,
-        vel: $.rand(1, 10),
+        vel: $.rand(1, 10) / $.game.divisor,
         drag: 0.96,
         decay: 0.01,
         w: size,
@@ -64,13 +62,13 @@ $.stateWin.step = function () {
     }
 
     for (var i = 0, length = $.game.isPerf ? 10 : 30; i < length; i++) {
-      var size = $.rand(1, 4);
+      var size = $.rand(1, 4) / $.game.divisor;
       this.sparks.create({
         pool: this.sparks,
         x: x + $.rand(0, Math.cos((i / length) * $.TAU) * radius),
         y: y + $.rand(0, Math.sin((i / length) * $.TAU) * radius),
         angle: (i / length) * $.TAU,
-        vel: $.rand(1, 10),
+        vel: $.rand(1, 10) / $.game.divisor,
         drag: 0.96,
         decay: 0.01,
         w: size,
@@ -84,7 +82,7 @@ $.stateWin.step = function () {
         pool: $.game.state.explosions,
         x: x + $.rand(0, Math.cos((i / length) * $.TAU) * radius * 2),
         y: y + $.rand(0, Math.sin((i / length) * $.TAU) * radius * 2),
-        radius: $.rand(1, 3),
+        radius: $.rand(1, 3) / $.game.divisor,
         decay: 0.02,
       });
     }
@@ -93,7 +91,7 @@ $.stateWin.step = function () {
       pool: $.game.state.explosions,
       x: x,
       y: y,
-      radius: 20,
+      radius: 20 / $.game.divisor,
       decay: 0.02,
     });
 
@@ -109,7 +107,7 @@ $.stateWin.step = function () {
 
   this.sparks.each("step");
   this.explosions.each("step");
-  this.tick++;
+  this.tick += $.game.dtNorm;
 };
 
 $.stateWin.render = function () {
@@ -119,7 +117,7 @@ $.stateWin.render = function () {
 
   // track gradients
   $.ctx.save();
-  !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle($.game.topGradient);
   $.ctx.fillRect(0, 0, $.game.width, $.game.height / 3);
   $.ctx.fillStyle($.game.midGradient);
@@ -143,23 +141,27 @@ $.stateWin.render = function () {
       $.msToString($.game.lastRunTime);
 
   $.ctx.save();
-  !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");
-  $.ctx.font("120px latowf400");
+  $.ctx.font(`${120 / $.game.divisor}px latowf400`);
   $.ctx.fillStyle("#fff");
-  $.ctx.fillText("VICTORY!", $.game.width / 2, $.game.height / 2 + 35);
-  $.ctx.font("60px latowf400");
+  $.ctx.fillText(
+    "VICTORY!",
+    $.game.width / 2,
+    $.game.height / 2 + 35 / $.game.divisor
+  );
+  $.ctx.font(`${64 / $.game.divisor}px latowf400`);
   $.ctx.fillText(
     statusText,
     $.game.width / 2,
-    $.game.height - $.game.height / 6 - 20
+    $.game.height - $.game.height / 6 - 20 / $.game.divisor
   );
-  $.ctx.font("30px latowf400");
+  $.ctx.font(`${34 / $.game.divisor}px latowf400`);
   $.ctx.fillText(
     "[ SPACE / CLICK ] RETURN TO MENU",
     $.game.width / 2,
-    $.game.height - $.game.height / 6 + 60
+    $.game.height - $.game.height / 6 + 70 / $.game.divisor
   );
   $.ctx.restore();
 

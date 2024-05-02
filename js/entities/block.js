@@ -57,6 +57,7 @@ $.block.prototype.step = function () {
   // handle hit
   if (this.hitTick > 0) {
     this.hitTick -= $.game.dtNorm;
+    this.hitTick = Math.max(this.hitTick, 0);
   }
 
   if (this.destroying) {
@@ -79,13 +80,13 @@ $.block.prototype.render = function () {
   // hit flash
   if (this.hitTick > 0) {
     $.ctx.save();
-    !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+    // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
     $.ctx.beginPath();
     $.ctx.fillStyle(
       "hsla(0, 0%, 100%, " + (this.hitTick / this.hitTickMax) * 1 + ")"
     );
     $.ctx.fillRect(this.x, this.y, this.size, this.size);
-    !$.game.isPerf && $.ctx.fillRect(this.x, this.y, this.size, this.size);
+    // !$.game.isPerf && $.ctx.fillRect(this.x, this.y, this.size, this.size);
     $.ctx.restore();
   }
 

@@ -84,7 +84,7 @@ body {
   font-family: "latowf400";
 }
 
-body:after {
+/* body:after {
   background: url(../images/px.png);
   bottom: 0;
   content: "";
@@ -95,7 +95,7 @@ body:after {
   right: 0;
   top: 0;
   z-index: 3;
-}
+} */
 
 .perf body:after {
   display: none;

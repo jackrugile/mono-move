@@ -8,7 +8,7 @@ $.hero = function (opt) {
   this.rotation = 0;
   this.jumpTickMax = 30;
   this.jumpTick = 0;
-  this.grav = 2;
+  this.grav = 2 / $.game.divisor;
   this.buffer = this.radius * 10;
   this.impactAngle = 0;
   this.rolling = false;
@@ -23,7 +23,7 @@ $.hero = function (opt) {
   this.scratch.height = this.radius * 2;
   this.scratchCtx.beginPath();
   this.scratchCtx.arc(this.radius, this.radius, this.radius, 0, $.TAU);
-  this.scratchCtx.fillStyle = "hsla(0, 0%, 100%, 0.5)";
+  this.scratchCtx.fillStyle = "hsla(0, 0%, 100%, 0.2)";
   this.scratchCtx.fill();
   this.scratchCtx.beginPath();
   this.scratchCtx.arc(this.radius * 0.7, this.radius, this.radius, 0, $.TAU);
@@ -37,7 +37,7 @@ $.hero = function (opt) {
 $.hero.prototype.step = function () {
   this.vy += this.grav * $.game.dtNorm;
 
-  var vxBase = $.game.levels[$.game.state.currentLevel].vx;
+  var vxBase = $.game.levels[$.game.state.currentLevel].vx / $.game.divisor;
   if ($.game.state.currentLevel % 2 === 0) {
     // even levels
     if ($.game.state.currentTrack === 0) {
@@ -63,8 +63,6 @@ $.hero.prototype.step = function () {
       this.vx = -vxBase;
     }
   }
-
-  // console.log(($.game.dt * 1000) / (1000 / 60), $.game.dtNorm);
 
   this.x += this.vx * $.game.dtNorm;
   this.y += this.vy * $.game.dtNorm;
@@ -200,18 +198,15 @@ $.hero.prototype.step = function () {
   // handle jump pulse
   if (this.jumpTick > 0) {
     this.jumpTick -= $.game.dtNorm;
+    this.jumpTick = Math.max(this.jumpTick, 0);
   }
-
-  // for collision testing
-  //this.x = $.game.mouse.x;
-  //this.y = $.game.mouse.y;
 
   // collisions
   this.checkCollisions();
 
   // rolling sparks
   if (this.rolling) {
-    var size = $.rand(1, 5),
+    var size = $.rand(1, 5) / $.game.divisor,
       angle;
 
     if (this.vx > 0) {
@@ -228,14 +223,15 @@ $.hero.prototype.step = function () {
       }
     }
 
-    for (var i = 0; i < ($.game.isPerf ? 1 : 2); i++) {
+    // for (var i = 0; i < ($.game.isPerf ? 1 : 2); i++) {
+    for (var i = 0; i < 1; i++) {
       $.game.state.sparks.create({
         pool: $.game.state.sparks,
-        x: this.x + $.rand(-5, 5),
+        x: this.x + $.rand(-5, 5) / $.game.divisor,
         y:
           this.grav > 0
-            ? this.y + this.radius + $.rand(0, -5)
-            : this.y - this.radius + $.rand(0, 5),
+            ? this.y + this.radius + $.rand(0, -5) / $.game.divisor
+            : this.y - this.radius + $.rand(0, 5) / $.game.divisor,
         angle: angle,
         vel: this.vx,
         drag: 0.95,
@@ -252,40 +248,13 @@ $.hero.prototype.step = function () {
     this.trail.pop();
   }
 
-  // bubble trail
-
-  // $.game.state.explosions.create({
-  //   pool: $.game.state.explosions,
-  //   x: this.x,
-  //   y: this.y,
-  //   radius: $.rand( 1, 5 ),
-  //   decay: 0.01
-  // });
-
-  // var angle = $.rand( 0, $.TAU ),
-  //   length = $.rand( 0, this.radius );
-
-  // $.game.state.explosions.create({
-  //   pool: $.game.state.explosions,
-  //   x: this.x + Math.cos( angle ) * length,
-  //   y: this.y + Math.sin( angle ) * length,
-  //   radius: $.rand( 1, 3 ),
-  //   decay: 0.05
-  // });
-
-  //3d tilt
-  // var xdeg = (this.y / $.game.height - 0.5) * 15,
-  //   ydeg = (this.x / $.game.width - 0.5) * -15;
-  // $.body.style.transform =
-  //   "scale(0.7) rotateX(" + xdeg + "deg) rotateY(" + ydeg + "deg)";
-
   this.tick += $.game.dtNorm;
 };
 
 $.hero.prototype.renderWedge = function (color, rotation, offset) {
   var length =
       this.gap +
-      (0.5 + Math.sin(this.tick * Math.abs(this.vx) * 0.01 + offset) / 2) *
+      (0.5 + Math.sin(this.tick * Math.abs(this.vx) * 0.015 + offset) / 2) *
         this.gapMove,
     x = Math.cos($.THIRDPI) * length,
     y = Math.sin($.THIRDPI) * length;
@@ -311,120 +280,55 @@ $.hero.prototype.render = function () {
   $.ctx.save();
   $.ctx.translate(this.x, this.y);
   $.ctx.rotate(this.rotation);
-  !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  $.ctx.globalCompositeOperation("lighter");
   // weird bug in firefox
   // !$.game.isPerf && $.game.isChrome && $.ctx.shadowBlur(30);
   // !$.game.isPerf && $.game.isChrome && $.ctx.shadowColor("#fff");
-  var alpha = 0.75 + Math.sin(this.tick * Math.abs(this.vx) * 0.01) * 0.25;
+  var alpha = 0.4 + Math.sin(this.tick * Math.abs(this.vx) * 0.015) * 0.2;
   this.renderWedge("hsla(0, 0%, 100%, " + alpha + ")", 0, 0);
-  this.renderWedge("hsla(120, 0%, 100%, " + alpha + ")", $.THIRDTAU, 0);
-  this.renderWedge("hsla(240, 0%, 100%, " + alpha + ")", $.THIRDTAU * 2, 0);
+  this.renderWedge("hsla(0, 0%, 100%, " + alpha + ")", $.THIRDTAU, 0);
+  this.renderWedge("hsla(0, 0%, 100%, " + alpha + ")", $.THIRDTAU * 2, 0);
   $.ctx.restore();
 
   // crescent moon highlight
-  if (!$.game.isPerf) {
-    $.ctx.save();
-    $.ctx.globalCompositeOperation("overlay");
-    if (this.vx > 0) {
-      $.ctx.drawImage(this.scratch, this.x - this.radius, this.y - this.radius);
-    } else {
-      $.ctx.translate(this.x + this.radius, this.y + this.radius);
-      $.ctx.scale(-1, 1);
-      $.ctx.drawImage(this.scratch, 0, -this.radius * 2);
-    }
-    $.ctx.restore();
+  //if (!$.game.isPerf) {
+  $.ctx.save();
+  //!$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  $.ctx.globalCompositeOperation("lighter");
+  if (this.vx > 0) {
+    $.ctx.drawImage(this.scratch, this.x - this.radius, this.y - this.radius);
+  } else {
+    $.ctx.translate(this.x + this.radius, this.y + this.radius);
+    $.ctx.scale(-1, 1);
+    $.ctx.drawImage(this.scratch, 0, -this.radius * 2);
   }
+  $.ctx.restore();
+  //}
 
   // general gradient highlight
-  if (!$.game.isPerf) {
-    $.ctx.save();
-    $.ctx.globalCompositeOperation("overlay");
-    $.ctx.translate(
-      this.x - $.game.heroGradientSize / 2,
-      this.y - $.game.heroGradientSize / 2
-    );
-    $.ctx.fillStyle($.game.heroGradient);
-    $.ctx.fillRect(0, 0, $.game.heroGradientSize, $.game.heroGradientSize);
-    $.ctx.restore();
-  }
+  // if (!$.game.isPerf) {
+  $.ctx.save();
+  //!$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // $.ctx.globalCompositeOperation("lighter");
+  $.ctx.translate(
+    this.x - $.game.heroGradientSize / 2,
+    this.y - $.game.heroGradientSize / 2
+  );
+  $.ctx.fillStyle($.game.heroGradient);
+  $.ctx.fillRect(0, 0, $.game.heroGradientSize, $.game.heroGradientSize);
+  $.ctx.restore();
+  // }
 
   // jump body flash
-  if (this.jumpTick > 0) {
-    $.ctx.beginPath();
-    $.ctx.arc(this.x, this.y, this.radius, 0, $.TAU);
-    $.ctx.fillStyle(
-      "hsla(0, 0%, 100%, " + (this.jumpTick / this.jumpTickMax) * 1 + ")"
-    );
-    $.ctx.fill();
-  }
-
-  // cray cray lighting and trails
-  // $.ctx.save();
-  // var sh = 10;
-  // $.ctx.beginPath();
-  // for (var i = 0, length = this.trail.length; i < length; i++) {
-  //   var p = this.trail[i];
-  //   if (i == 0) {
-  //     $.ctx.moveTo(p[0], p[1]);
-  //   } else {
-  //     $.ctx.lineTo(p[0], p[1]);
-  //   }
-
-  //   if (i == 0) {
-  //     $.ctx.moveTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
-  //   } else {
-  //     $.ctx.lineTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
-  //   }
+  // if (this.jumpTick > 0) {
+  //   $.ctx.beginPath();
+  //   $.ctx.arc(this.x, this.y, this.radius, 0, $.TAU);
+  //   $.ctx.fillStyle(
+  //     "hsla(0, 0%, 100%, " + (this.jumpTick / this.jumpTickMax) * 0.25 + ")"
+  //   );
+  //   $.ctx.fill();
   // }
-  // $.ctx.strokeStyle("#fff");
-  // $.ctx.lineWidth(3);
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
-  // $.ctx.stroke();
-  // $.ctx.restore();
-
-  // $.ctx.save();
-  // var sh = 5,
-  //   amt = ~~$.rand(10, 20);
-  // $.ctx.beginPath();
-  // for (var i = 0; i < amt; i++) {
-  //   var p = this.trail[i];
-
-  //   var x =
-  //     this.x + Math.cos((i / amt) * $.TAU) * this.radius + $.rand(-sh, sh);
-  //   var y =
-  //     this.y + Math.sin((i / amt) * $.TAU) * this.radius + $.rand(-sh, sh);
-
-  //   if (i == 0) {
-  //     $.ctx.moveTo(x, y);
-  //   } else {
-  //     $.ctx.lineTo(x, y);
-  //   }
-  // }
-  // $.ctx.closePath();
-  // $.ctx.strokeStyle("#fff");
-  // $.ctx.lineWidth($.rand(1, 10));
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
-  // $.ctx.stroke();
-  // $.ctx.restore();
-
-  // $.ctx.save();
-  // $.ctx.beginPath();
-
-  // var angle = $.rand(0, $.TAU);
-  // var x1 = this.x + Math.cos(angle) * this.radius + $.rand(-sh, sh);
-  // var y1 = this.y + Math.sin(angle) * this.radius + $.rand(-sh, sh);
-  // var x2 = this.x + Math.cos(angle + $.PI) * this.radius + $.rand(-sh, sh);
-  // var y2 = this.y + Math.sin(angle + $.PI) * this.radius + $.rand(-sh, sh);
-
-  // $.ctx.moveTo(x1, y1);
-  // $.ctx.lineTo(x2, y2);
-
-  // $.ctx.closePath();
-  // $.ctx.strokeStyle("#fff");
-  // $.ctx.lineWidth($.rand(1, 10));
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
-  // $.ctx.stroke();
-  // $.ctx.restore();
 };
 
 $.hero.prototype.destroy = function () {};
@@ -442,16 +346,19 @@ $.hero.prototype.jump = function () {
     $.game.sound.setPlaybackRate(sound, $.rand(1.2, 1.4));
   }
 
-  this.vy = 0;
-  this.grav *= -1;
-  this.jumpTick = this.jumpTickMax;
   $.game.state.explosions.create({
     pool: $.game.state.explosions,
-    x: this.x,
-    y: this.y,
+    x: this.x + this.vx,
+    y: this.y + this.vy,
+    vx: 0,
+    vy: 0,
     radius: this.radius,
     decay: 0.14,
   });
+
+  this.vy = 0;
+  this.grav *= -1;
+  this.jumpTick = this.jumpTickMax;
 };
 
 $.hero.prototype.die = function () {
@@ -475,14 +382,14 @@ $.hero.prototype.die = function () {
   $.game.state.deathTick = $.game.state.deathTickMax;
 
   // burst
-  for (var i = 0, length = $.game.isPerf ? 5 : 15; i < length; i++) {
-    var size = $.rand(1, 4);
+  for (var i = 0, length = $.game.isPerf ? 5 : 10; i < length; i++) {
+    var size = $.rand(1, 4) / $.game.divisor;
     $.game.state.sparks.create({
       pool: $.game.state.sparks,
       x: hero.x + $.rand(0, Math.cos((i / length) * $.TAU) * hero.radius),
       y: hero.y + $.rand(0, Math.sin((i / length) * $.TAU) * hero.radius),
       angle: (i / length) * $.TAU,
-      vel: $.rand(1, 10),
+      vel: $.rand(1, 10) / $.game.divisor,
       drag: 0.96,
       decay: 0.01,
       w: size,
@@ -493,13 +400,13 @@ $.hero.prototype.die = function () {
 
   // non-burst
   for (var i = 0, length = $.game.isPerf ? 10 : 30; i < length; i++) {
-    var size = $.rand(1, 4);
+    var size = $.rand(1, 4) / $.game.divisor;
     $.game.state.sparks.create({
       pool: $.game.state.sparks,
       x: hero.x + $.rand(0, Math.cos((i / length) * $.TAU) * hero.radius),
       y: hero.y + $.rand(0, Math.sin((i / length) * $.TAU) * hero.radius),
       angle: (i / length) * $.TAU,
-      vel: $.rand(1, 10),
+      vel: $.rand(1, 10) / $.game.divisor,
       drag: 0.96,
       decay: 0.01,
       w: size,
@@ -532,12 +439,11 @@ $.hero.prototype.die = function () {
     this.trail[5][1] - this.y,
     this.trail[5][0] - this.x
   );
-  $.game.state.shake.translate = 10;
+  $.game.state.shake.translate = 10 / $.game.divisor;
   $.game.state.shake.rotate = 0.15;
-  $.game.state.shake.xBias = Math.cos(this.impactAngle) * 25;
-  $.game.state.shake.yBias = Math.sin(this.impactAngle) * -100;
-  //$.game.state.shake.xBias = Math.cos( this.impactAngle ) * ( 25 * Math.abs( this.vx ) );
-  //$.game.state.shake.yBias = Math.sin( this.impactAngle ) * ( 25 * Math.abs( this.vy ) );
+  $.game.state.shake.xBias = (Math.cos(this.impactAngle) * 25) / $.game.divisor;
+  $.game.state.shake.yBias =
+    (Math.sin(this.impactAngle) * -100) / $.game.divisor;
 
   $.game.state.deaths++;
 };
@@ -559,7 +465,6 @@ $.hero.prototype.checkCollisions = function () {
       )
     ) {
       block.hitTick = block.hitTickMax;
-      //this.impactAngle = Math.atan2( block.y- this.y, block.x - this.x );
       hero.die();
     }
   }

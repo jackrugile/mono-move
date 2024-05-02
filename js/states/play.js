@@ -126,7 +126,6 @@ $.statePlay.leave = function () {
   }
   $.game.lastRunTime = Date.now() - this.startTime - this.pausedTime;
   $.game.lastRunDeaths = this.deaths;
-  //console.log( $.game.lastRunTime, $.msToString( $.game.lastRunTime ), $.game.lastRunDeaths );
 };
 
 $.statePlay.step = function () {
@@ -137,11 +136,13 @@ $.statePlay.step = function () {
   // handle track flash
   if (this.trackChangeTick > 0) {
     this.trackChangeTick -= $.game.dtNorm;
+    this.trackChangeTick = Math.max(this.trackChangeTick, 0);
   }
 
   // handle death flash
   if (this.deathTick > 0) {
     this.deathTick -= $.game.dtNorm;
+    this.deathTick = Math.max(this.deathTick, 0);
   }
 
   // spotlight
@@ -159,7 +160,7 @@ $.statePlay.step = function () {
   this.explosions.each("step");
   this.hero.step();
 
-  this.tick++;
+  this.tick += $.game.dtNorm;
 
   if (this.winFlag) {
     this.win();
@@ -168,7 +169,6 @@ $.statePlay.step = function () {
 
 $.statePlay.render = function () {
   // bg gradient color
-  //$.ctx.fillStyle( this.bgGradient );
   $.ctx.fillStyle($.game.levels[this.currentLevel].gradient);
   $.ctx.fillRect(0, 0, $.game.width, $.game.height);
 
@@ -188,7 +188,7 @@ $.statePlay.render = function () {
 
   // track gradients
   $.ctx.save();
-  !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle($.game.topGradient);
   $.ctx.fillRect(
     -$.game.trackPadding,
@@ -235,7 +235,7 @@ $.statePlay.render = function () {
           ")"
       );
     } else {
-      $.ctx.globalCompositeOperation("overlay");
+      // $.ctx.globalCompositeOperation("overlay");
       $.ctx.fillStyle(
         "hsla(0, 0%, 100%, " +
           (this.trackChangeTick / this.trackChangeTickMax) * 1 +
@@ -257,15 +257,26 @@ $.statePlay.render = function () {
 
   // spotlight
   if (!$.game.isPerf) {
+    // $.ctx.save();
+    // $.ctx.globalCompositeOperation("overlay");
+    // $.ctx.a(0.3);
+    // $.ctx.drawImage(
+    //   $.game.images["light"],
+    //   this.lightPosition.x - $.game.width,
+    //   this.lightPosition.y - $.game.height,
+    //   $.game.width * 2,
+    //   $.game.height * 2
+    // );
+    // $.ctx.restore();
+
     $.ctx.save();
-    $.ctx.globalCompositeOperation("overlay");
-    $.ctx.a(0.35);
+    $.ctx.globalCompositeOperation("lighter");
     $.ctx.drawImage(
-      $.game.images["light"],
-      this.lightPosition.x - $.game.width,
-      this.lightPosition.y - $.game.height,
-      $.game.width * 2,
-      $.game.height * 2
+      $.game.spotlightCanvas,
+      this.lightPosition.x - $.game.spotlightCanvas.width / 2,
+      this.lightPosition.y - $.game.spotlightCanvas.height / 2,
+      $.game.spotlightCanvas.width,
+      $.game.spotlightCanvas.height
     );
     $.ctx.restore();
   }
@@ -329,7 +340,7 @@ $.statePlay.handleScreenShake = function () {
   this.shake.xBias *= 0.9;
   this.shake.yBias *= 0.9;
 
-  if (this.shake.translate > 0) {
+  if (this.shake.translate > 0.001) {
     this.shake.translate *= 0.9;
     this.shake.xTarget =
       $.rand(-this.shake.translate, this.shake.translate) + this.shake.xBias;
@@ -340,7 +351,7 @@ $.statePlay.handleScreenShake = function () {
     this.shake.yTarget = 0;
   }
 
-  if (this.shake.rotate > 0) {
+  if (this.shake.rotate > 0.001) {
     this.shake.rotate *= 0.9;
     this.shake.angleTarget = $.rand(-this.shake.rotate, this.shake.rotate);
   } else {
@@ -410,7 +421,7 @@ $.statePlay.pause = function () {
 
 $.statePlay.renderUI = function () {
   $.ctx.save();
-  !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
 
   // hide tut text after level 1
   if (this.currentLevel > 0) {
@@ -423,7 +434,7 @@ $.statePlay.renderUI = function () {
   // tutorial
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
-  $.ctx.font("40px latowf400");
+  $.ctx.font(`${64 / $.game.divisor}px latowf400`);
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.tutTextAlpha + ")");
   $.ctx.fillText(
     "[ SPACE / CLICK ] TO SWITCH GRAVITY",
@@ -439,63 +450,83 @@ $.statePlay.renderUI = function () {
 
   // styles
   $.ctx.textBaseline("top");
-  $.ctx.font("60px latowf400");
+  $.ctx.font(`${75 / $.game.divisor}px latowf400`);
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.textAlpha + ")");
 
   // death display
-  var deathShake = (this.deathTick / this.deathTickMax) * 10;
+  var deathShake = ((this.deathTick / this.deathTickMax) * 10) / $.game.divisor;
   $.ctx.textAlign("left");
   $.ctx.fillText(
     $.pad(this.deaths, 3),
-    40 + $.rand(-deathShake, deathShake),
-    40 + $.rand(-deathShake, deathShake)
+    40 / $.game.divisor + $.rand(-deathShake, deathShake),
+    40 / $.game.divisor + $.rand(-deathShake, deathShake)
   );
 
   // level display
   $.ctx.textAlign("right");
   $.ctx.fillText(
     this.currentLevel + 1 + "/" + $.game.levels.length,
-    $.game.width - 40,
-    40
+    $.game.width - 40 / $.game.divisor,
+    40 / $.game.divisor
   );
 
   // death label
-  $.ctx.font("18px latowf400");
+  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
   $.ctx.textAlign("left");
   $.ctx.fillText(
     "DEATHS",
-    40 + $.rand(-deathShake, deathShake),
-    100 + $.rand(-deathShake, deathShake)
+    40 / $.game.divisor + $.rand(-deathShake, deathShake),
+    120 / $.game.divisor + $.rand(-deathShake, deathShake)
   );
 
   // level label
   $.ctx.textAlign("right");
-  $.ctx.fillText("LEVEL", $.game.width - 40, 100);
+  $.ctx.fillText(
+    "LEVEL",
+    $.game.width - 40 / $.game.divisor,
+    120 / $.game.divisor
+  );
 
   // controls display
   $.ctx.textBaseline("bottom");
-  $.ctx.font("16px latowf400");
+  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
   $.ctx.textAlign("left");
-  $.ctx.fillText("[ P ] PAUSE", 40, $.game.height - 85);
-  $.ctx.fillText("[ M ] MUTE", 40, $.game.height - 60);
-  $.ctx.fillText("[ ESC ] MENU", 40, $.game.height - 35);
+  $.ctx.fillText(
+    "[ P ] PAUSE",
+    40 / $.game.divisor,
+    $.game.height - 135 / $.game.divisor
+  );
+  $.ctx.fillText(
+    "[ M ] MUTE",
+    40 / $.game.divisor,
+    $.game.height - 85 / $.game.divisor
+  );
+  $.ctx.fillText(
+    "[ ESC ] MENU",
+    40 / $.game.divisor,
+    $.game.height - 35 / $.game.divisor
+  );
   $.ctx.restore();
 };
 
 $.statePlay.renderPause = function () {
-  $.ctx.fillStyle("hsla(0, 0%, 0%, 0.6)");
+  $.ctx.fillStyle("hsla(0, 0%, 0%, 0.8)");
   $.ctx.fillRect(0, 0, $.game.width, $.game.height);
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");
 
-  $.ctx.font("80px latowf400");
+  $.ctx.font(`${90 / $.game.divisor}px latowf400`);
   $.ctx.fillStyle("#fff");
-  $.ctx.fillText("PAUSED", $.game.width / 2, $.game.height / 2 - 30);
-  $.ctx.font("30px latowf400");
+  $.ctx.fillText(
+    "PAUSED",
+    $.game.width / 2,
+    $.game.height / 2 - 40 / $.game.divisor
+  );
+  $.ctx.font(`${32 / $.game.divisor}px latowf400`);
   $.ctx.fillText(
     "[ P ] RESUME                [ M ] MUTE                [ ESC ] MENU",
     $.game.width / 2,
-    $.game.height / 2 + 60
+    $.game.height / 2 + 80 / $.game.divisor
   );
 };
 

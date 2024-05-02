@@ -9,7 +9,7 @@ $.spark.prototype.init = function (opt) {
   this.spin = $.rand(-0.1, 0.1);
 
   this.trail = [];
-  this.trailSize = 7;
+  this.trailSize = Math.max(Math.round(5 / $.game.dtNorm, 1));
   this.trailWidth = 1;
 };
 
@@ -54,7 +54,8 @@ $.spark.prototype.render = function () {
     }
     $.ctx.strokeStyle("hsla(0, 0%, 100%, " + this.alpha + ")");
     $.ctx.lineWidth(this.trailWidth);
-    !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+    // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
+    $.ctx.globalCompositeOperation("lighter");
     $.ctx.stroke();
     $.ctx.restore();
   } else {
