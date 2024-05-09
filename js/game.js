@@ -47,7 +47,8 @@ $.game.create = function () {
     $.html.classList.add("select");
   }
 
-  $.game.controlString = $.isTouchDevice() ? "TAP" : "SPACE / CLICK";
+  $.game.isTouchDevice = $.isTouchDevice();
+  $.game.controlString = $.game.isTouchDevice ? "TAP" : "SPACE / CLICK";
 
   this.unit = unit;
   this.lastRunTime = null;
@@ -146,15 +147,15 @@ $.game.create = function () {
 
   // block gradient
   this.blockGradient = $.ctx.createLinearGradient(this.unit, 0, 0, this.unit);
-  this.blockGradient.addColorStop(0, "hsla(0, 0%, 0%, 0.15)");
-  this.blockGradient.addColorStop(1, "hsla(0, 0%, 0%, 0.8)");
+  this.blockGradient.addColorStop(0, "hsla(0, 0%, 0%, 0.3)");
+  this.blockGradient.addColorStop(1, "hsla(0, 0%, 0%, 0.9)");
 
   // track padding for screen shake
   this.trackPadding = 100 / $.game.divisor;
 
   // top gradient
   this.topGradient = $.ctx.createLinearGradient(0, 0, 0, $.game.height / 3);
-  this.topGradient.addColorStop(0, "hsla(0, 0%, 0%, 0.1)");
+  this.topGradient.addColorStop(0, "hsla(0, 0%, 0%, 0.4)");
   this.topGradient.addColorStop(1, "transparent");
 
   // mid gradient
@@ -164,7 +165,7 @@ $.game.create = function () {
     0,
     $.game.height - $.game.height / 3
   );
-  this.midGradient.addColorStop(0, "hsla(0, 0%, 0%, 0.3)");
+  this.midGradient.addColorStop(0, "hsla(0, 0%, 0%, 0.4)");
   this.midGradient.addColorStop(1, "transparent");
 
   // bot gradient

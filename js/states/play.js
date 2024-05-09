@@ -275,7 +275,13 @@ $.statePlay.pointerdown = function (e) {
 
 $.statePlay.keydown = function (e) {
   if (e.key == "escape") {
-    $.game.setState($.stateMenu);
+    if (
+      window.confirm(
+        "Are you sure you want to end this game and return to the menu?"
+      )
+    ) {
+      $.game.setState($.stateMenu);
+    }
   } else if (e.key == "p") {
     this.pause();
   } else if (e.key == "m") {
@@ -311,11 +317,14 @@ $.statePlay.gamepaddown = function (data) {
 };
 
 $.statePlay.handleScreenShake = function () {
-  this.shake.xBias *= 0.9;
-  this.shake.yBias *= 0.9;
+  this.shake.xBias +=
+    (0 - this.shake.xBias) * (1 - Math.exp(-0.1 * $.game.dtNorm));
+  this.shake.yBias +=
+    (0 - this.shake.yBias) * (1 - Math.exp(-0.1 * $.game.dtNorm));
 
   if (this.shake.translate > 0.001) {
-    this.shake.translate *= 0.9;
+    this.shake.translate +=
+      (0 - this.shake.translate) * (1 - Math.exp(-0.1 * $.game.dtNorm));
     this.shake.xTarget =
       $.rand(-this.shake.translate, this.shake.translate) + this.shake.xBias;
     this.shake.yTarget =
@@ -326,15 +335,20 @@ $.statePlay.handleScreenShake = function () {
   }
 
   if (this.shake.rotate > 0.001) {
-    this.shake.rotate *= 0.9;
+    this.shake.rotate +=
+      (0 - this.shake.rotate) * (1 - Math.exp(-0.1 * $.game.dtNorm));
     this.shake.angleTarget = $.rand(-this.shake.rotate, this.shake.rotate);
   } else {
     this.shake.angleTarget = 0;
   }
 
-  this.shake.x += (this.shake.xTarget - this.shake.x) * 0.25;
-  this.shake.y += (this.shake.yTarget - this.shake.y) * 0.25;
-  this.shake.angle += (this.shake.angleTarget - this.shake.angle) * 0.25;
+  this.shake.x +=
+    (this.shake.xTarget - this.shake.x) * (1 - Math.exp(-0.9 * $.game.dtNorm));
+  this.shake.y +=
+    (this.shake.yTarget - this.shake.y) * (1 - Math.exp(-0.9 * $.game.dtNorm));
+  this.shake.angle +=
+    (this.shake.angleTarget - this.shake.angle) *
+    (1 - Math.exp(-0.9 * $.game.dtNorm));
 };
 
 $.statePlay.getTrack = function () {
@@ -461,25 +475,27 @@ $.statePlay.renderUI = function () {
   );
 
   // controls display
-  $.ctx.textBaseline("bottom");
-  $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
-  $.ctx.textAlign("left");
-  $.ctx.fillText(
-    "[ P ] PAUSE",
-    40 / $.game.divisor,
-    $.game.height - 135 / $.game.divisor
-  );
-  $.ctx.fillText(
-    "[ M ] MUTE",
-    40 / $.game.divisor,
-    $.game.height - 85 / $.game.divisor
-  );
-  $.ctx.fillText(
-    "[ ESC ] MENU",
-    40 / $.game.divisor,
-    $.game.height - 35 / $.game.divisor
-  );
-  $.ctx.restore();
+  if (!$.game.isTouchDevice) {
+    $.ctx.textBaseline("bottom");
+    $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
+    $.ctx.textAlign("left");
+    $.ctx.fillText(
+      "[ P ] PAUSE",
+      40 / $.game.divisor,
+      $.game.height - 135 / $.game.divisor
+    );
+    $.ctx.fillText(
+      "[ M ] MUTE",
+      40 / $.game.divisor,
+      $.game.height - 85 / $.game.divisor
+    );
+    $.ctx.fillText(
+      "[ ESC ] MENU",
+      40 / $.game.divisor,
+      $.game.height - 35 / $.game.divisor
+    );
+    $.ctx.restore();
+  }
 };
 
 $.statePlay.renderPause = function () {

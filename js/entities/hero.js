@@ -452,7 +452,7 @@ $.hero.prototype.die = function () {
       angle: (i / length) * $.TAU,
       vel: $.rand(1, 10) / $.game.divisor,
       drag: 0.96,
-      decay: 0.01,
+      decay: 0.02,
       w: size,
       h: size,
       burst: false,
@@ -475,7 +475,7 @@ $.hero.prototype.die = function () {
       x: this.x,
       y: this.y,
       radius: radius,
-      decay: 0.02,
+      decay: 0.03,
       hue: $.rand(
         $.game.levels[$.game.state.currentLevel].hue2,
         $.game.levels[$.game.state.currentLevel].hue1
@@ -485,18 +485,19 @@ $.hero.prototype.die = function () {
     });
   }
 
-  // screen shake
+  // reset to track start
   if (this.vx > 0) {
     this.x = -this.radius * 3;
   } else {
     this.x = $.game.width + this.radius * 3;
   }
-  this.impactAngle = Math.atan2(-this.vy, -this.vx);
-  $.game.state.shake.translate = 10 / $.game.divisor;
-  $.game.state.shake.rotate = 0.15;
+
+  // screen shake
+  this.impactAngle = Math.atan2(this.vy, this.vx);
+  $.game.state.shake.translate = 5 / $.game.divisor;
+  $.game.state.shake.rotate = 0.01;
   $.game.state.shake.xBias = (Math.cos(this.impactAngle) * 25) / $.game.divisor;
-  $.game.state.shake.yBias =
-    (Math.sin(this.impactAngle) * -100) / $.game.divisor;
+  $.game.state.shake.yBias = (Math.sin(this.impactAngle) * 25) / $.game.divisor;
 
   $.game.state.deaths++;
 };

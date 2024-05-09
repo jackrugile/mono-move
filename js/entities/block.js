@@ -69,6 +69,16 @@ $.block.prototype.step = function () {
 
 $.block.prototype.render = function () {
   $.ctx.save();
+  $.ctx.beginPath();
+  $.ctx.rect(
+    0,
+    (this.track * $.game.height) / 3,
+    $.game.width,
+    $.game.height / 3
+  );
+  $.ctx.clip();
+
+  $.ctx.save();
   $.ctx.translate(this.x + this.size / 2, this.y + this.size / 2);
   $.ctx.scale(this.scale, this.scale);
   $.ctx.rotate(this.rotation);
@@ -82,7 +92,7 @@ $.block.prototype.render = function () {
     $.ctx.save();
     $.ctx.beginPath();
     $.ctx.fillStyle(
-      "hsla(0, 0%, 100%, " + (this.hitTick / this.hitTickMax) * 1 + ")"
+      "hsla(0, 0%, 100%, " + this.hitTick / this.hitTickMax + ")"
     );
     $.ctx.fillRect(this.x, this.y, this.size, this.size);
     $.ctx.restore();
@@ -101,6 +111,8 @@ $.block.prototype.render = function () {
     $.ctx.fillStyle("hsla(0, 0%, 100%, 0.25)");
     $.ctx.fill();
   }
+
+  $.ctx.restore();
 };
 
 $.block.prototype.destroy = function () {
