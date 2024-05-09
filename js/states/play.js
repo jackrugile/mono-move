@@ -422,7 +422,11 @@ $.statePlay.renderUI = function () {
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
   $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
-  $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.tutTextAlpha + ")");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
+      this.tutTextAlpha
+    })`
+  );
   $.ctx.fillText(
     `[ ${$.game.controlString} ] TO SWITCH GRAVITY`,
     $.game.width / 2,
@@ -438,11 +442,15 @@ $.statePlay.renderUI = function () {
   // styles
   $.ctx.textBaseline("top");
   $.ctx.font(`${Math.round(75 / $.game.divisor)}px latowf400`);
-  $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.textAlpha + ")");
 
   // death display
   var deathShake = ((this.deathTick / this.deathTickMax) * 10) / $.game.divisor;
   $.ctx.textAlign("left");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
+      this.textAlpha
+    })`
+  );
   $.ctx.fillText(
     $.pad(this.deaths, 3),
     40 / $.game.divisor + $.rand(-deathShake, deathShake),
@@ -451,6 +459,11 @@ $.statePlay.renderUI = function () {
 
   // level display
   $.ctx.textAlign("right");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[$.game.state.currentLevel].hue1}, 100%, 85%, ${
+      this.textAlpha
+    })`
+  );
   $.ctx.fillText(
     this.currentLevel + 1 + "/" + $.game.levels.length,
     $.game.width - 40 / $.game.divisor,
@@ -460,6 +473,11 @@ $.statePlay.renderUI = function () {
   // death label
   $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
   $.ctx.textAlign("left");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
+      this.textAlpha
+    })`
+  );
   $.ctx.fillText(
     "DEATHS",
     40 / $.game.divisor + $.rand(-deathShake, deathShake),
@@ -468,6 +486,11 @@ $.statePlay.renderUI = function () {
 
   // level label
   $.ctx.textAlign("right");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[$.game.state.currentLevel].hue1}, 100%, 85%, ${
+      this.textAlpha
+    })`
+  );
   $.ctx.fillText(
     "LEVEL",
     $.game.width - 40 / $.game.divisor,
@@ -479,6 +502,11 @@ $.statePlay.renderUI = function () {
     $.ctx.textBaseline("bottom");
     $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
     $.ctx.textAlign("left");
+    $.ctx.fillStyle(
+      `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
+        this.textAlpha
+      })`
+    );
     $.ctx.fillText(
       "[ P ] PAUSE",
       40 / $.game.divisor,
@@ -499,7 +527,7 @@ $.statePlay.renderUI = function () {
 };
 
 $.statePlay.renderPause = function () {
-  $.ctx.fillStyle("hsla(0, 0%, 0%, 0.8)");
+  $.ctx.fillStyle("hsla(0, 0%, 0%, 0.9)");
   $.ctx.fillRect(0, 0, $.game.width, $.game.height);
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");

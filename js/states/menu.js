@@ -100,10 +100,12 @@ $.stateMenu.render = function () {
   $.ctx.restore();
 
   $.ctx.save();
-  $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.titleAlpha + ")");
   $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[0].hue2}, 100%, 85%, ${this.titleAlpha})`
+  );
   $.ctx.fillText(
     `[ ${$.game.controlString} ] TO PLAY`,
     $.game.width / 2,
@@ -114,6 +116,9 @@ $.stateMenu.render = function () {
   $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
 
   $.ctx.textAlign("left");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[0].hue2}, 100%, 85%, ${this.titleAlpha})`
+  );
   $.ctx.fillText(
     "PLAY COUNT: " + $.formatCommas($.storage.get("playCount")),
     40 / $.game.divisor,
@@ -132,6 +137,9 @@ $.stateMenu.render = function () {
     $.game.height - 35 / $.game.divisor
   );
   $.ctx.textAlign("right");
+  $.ctx.fillStyle(
+    `hsla(${$.game.levels[0].hue1}, 100%, 85%, ${this.titleAlpha})`
+  );
   $.ctx.fillText(
     "BY JACK RUGILE",
     $.game.width - 40 / $.game.divisor,

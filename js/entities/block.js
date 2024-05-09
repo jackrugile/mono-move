@@ -8,8 +8,8 @@ $.block.prototype.init = function (opt) {
   this.scaleTarget = 0;
   this.rotation = -$.HALFPI;
   this.rotationTarget = 0;
-  this.alpha = 1;
-  this.alphaTarget = 1;
+  this.alpha = 0;
+  this.alphaTarget = 0;
   this.destroying = false;
   this.hitTick = 0;
   this.hitTickMax = 60;
@@ -49,7 +49,7 @@ $.block.prototype.step = function () {
   ) {
     this.alphaTarget = 1;
   } else {
-    this.alphaTarget = 0.25;
+    this.alphaTarget = 0.2;
   }
   this.alpha +=
     (this.alphaTarget - this.alpha) * (1 - Math.exp(-0.1 * $.game.dtNorm));
