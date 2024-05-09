@@ -48,17 +48,12 @@
   font-style: normal;
 }
 
-/* html {
-  perspective: 1000px;
-} */
-
 html,
 body {
   background: #000 !important;
   cursor: crosshair;
   height: 100%;
   overflow: hidden;
-  /* transition: transform 300ms; */
 }
 
 .font-load {
@@ -82,23 +77,6 @@ body {
 }
 .font-4 {
   font-family: "latowf400";
-}
-
-/* body:after {
-  background: url(../images/px.png);
-  bottom: 0;
-  content: "";
-  left: 0;
-  opacity: 0.2;
-  pointer-events: none;
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 3;
-} */
-
-.perf body:after {
-  display: none;
 }
 
 .level-menu {
@@ -132,16 +110,8 @@ canvas {
   cursor: crosshair;
 }
 
-.state-menu canvas {
-  animation: party 7000ms -5000ms linear infinite;
-}
-
 .state-win canvas {
   animation: party 2000ms linear infinite;
-}
-
-.perf canvas {
-  animation: none;
 }
 
 @keyframes party {

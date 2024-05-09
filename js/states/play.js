@@ -146,8 +146,8 @@ $.statePlay.step = function () {
   }
 
   // spotlight
-  var x = Math.min(Math.max(0, this.hero.x), $.game.width);
-  var y = Math.min(Math.max(0, this.hero.y), $.game.height);
+  var x = Math.min(Math.max(0, this.hero.x + this.hero.vx), $.game.width);
+  var y = Math.min(Math.max(0, this.hero.y + this.hero.vy), $.game.height);
 
   this.lightPosition.x +=
     (x - this.lightPosition.x) * (1 - Math.exp(-0.15 * $.game.dtNorm));
@@ -188,7 +188,6 @@ $.statePlay.render = function () {
 
   // track gradients
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle($.game.topGradient);
   $.ctx.fillRect(
     -$.game.trackPadding,
@@ -228,20 +227,11 @@ $.statePlay.render = function () {
     }
     $.ctx.save();
     $.ctx.beginPath();
-    if ($.game.isPerf) {
-      $.ctx.fillStyle(
-        "hsla(0, 0%, 100%, " +
-          (this.trackChangeTick / this.trackChangeTickMax) * 0.25 +
-          ")"
-      );
-    } else {
-      // $.ctx.globalCompositeOperation("overlay");
-      $.ctx.fillStyle(
-        "hsla(0, 0%, 100%, " +
-          (this.trackChangeTick / this.trackChangeTickMax) * 1 +
-          ")"
-      );
-    }
+    $.ctx.fillStyle(
+      "hsla(0, 0%, 100%, " +
+        (this.trackChangeTick / this.trackChangeTickMax) * 1 +
+        ")"
+    );
     $.ctx.fillRect(0, y, $.game.width, $.game.height / 3);
     $.ctx.restore();
   }
@@ -256,38 +246,22 @@ $.statePlay.render = function () {
   }
 
   // spotlight
-  if (!$.game.isPerf) {
-    // $.ctx.save();
-    // $.ctx.globalCompositeOperation("overlay");
-    // $.ctx.a(0.3);
-    // $.ctx.drawImage(
-    //   $.game.images["light"],
-    //   this.lightPosition.x - $.game.width,
-    //   this.lightPosition.y - $.game.height,
-    //   $.game.width * 2,
-    //   $.game.height * 2
-    // );
-    // $.ctx.restore();
-
-    $.ctx.save();
-    $.ctx.globalCompositeOperation("lighter");
-    $.ctx.drawImage(
-      $.game.spotlightCanvas,
-      this.lightPosition.x - $.game.spotlightCanvas.width / 2,
-      this.lightPosition.y - $.game.spotlightCanvas.height / 2,
-      $.game.spotlightCanvas.width,
-      $.game.spotlightCanvas.height
-    );
-    $.ctx.restore();
-  }
+  $.ctx.save();
+  $.ctx.globalCompositeOperation("lighter");
+  $.ctx.drawImage(
+    $.game.spotlightCanvas,
+    this.lightPosition.x - $.game.spotlightCanvas.width / 2,
+    this.lightPosition.y - $.game.spotlightCanvas.height / 2,
+    $.game.spotlightCanvas.width,
+    $.game.spotlightCanvas.height
+  );
+  $.ctx.restore();
 
   this.renderUI();
 
   if (this.paused) {
     this.renderPause();
   }
-
-  !$.game.isPerf && $.game.renderOverlay();
 };
 
 $.statePlay.pointerdown = function (e) {
@@ -421,7 +395,6 @@ $.statePlay.pause = function () {
 
 $.statePlay.renderUI = function () {
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
 
   // hide tut text after level 1
   if (this.currentLevel > 0) {
@@ -434,10 +407,10 @@ $.statePlay.renderUI = function () {
   // tutorial
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
-  $.ctx.font(`${Math.round(64 / $.game.divisor)}px latowf400`);
+  $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.tutTextAlpha + ")");
   $.ctx.fillText(
-    "[ SPACE / CLICK ] TO SWITCH GRAVITY",
+    `[ ${$.game.controlString} ] TO SWITCH GRAVITY`,
     $.game.width / 2,
     $.game.height / 3 / 2
   );

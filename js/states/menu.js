@@ -61,7 +61,6 @@ $.stateMenu.render = function () {
 
   // track gradients
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle($.game.topGradient);
   $.ctx.fillRect(0, 0, $.game.width, $.game.height / 3);
   $.ctx.fillStyle($.game.midGradient);
@@ -77,7 +76,6 @@ $.stateMenu.render = function () {
 
   // title
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.align(0.5);
   $.ctx.translate($.game.width / 2, $.game.height / 2);
   $.ctx.scale(
@@ -86,7 +84,7 @@ $.stateMenu.render = function () {
   );
   $.ctx.a(0.5 * this.titleAlpha);
   $.ctx.drawImage($.game.images["title-glow"], 0, 0);
-  $.ctx.a(1 * this.titleAlpha);
+  $.ctx.a(this.titleAlpha);
   $.ctx.drawImage(
     $.game.images["title"],
     0,
@@ -102,14 +100,12 @@ $.stateMenu.render = function () {
   $.ctx.restore();
 
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.titleAlpha + ")");
-
   $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
   $.ctx.fillText(
-    "[ SPACE / CLICK ] TO PLAY",
+    `[ ${$.game.controlString} ] TO PLAY`,
     $.game.width / 2,
     $.game.height - $.game.height / 6 + 10 / $.game.divisor
   );
@@ -153,8 +149,6 @@ $.stateMenu.render = function () {
   );
 
   $.ctx.restore();
-
-  !$.game.isPerf && $.game.renderOverlay();
 };
 
 $.stateMenu.pointerdown = function (e) {

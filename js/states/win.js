@@ -45,7 +45,7 @@ $.stateWin.step = function () {
       y = $.rand(0, $.game.height),
       radius = $.rand(40, 160) / $.game.divisor;
 
-    for (var i = 0, length = $.game.isPerf ? 5 : 15; i < length; i++) {
+    for (var i = 0, length = 15; i < length; i++) {
       var size = $.rand(1, 4);
       this.sparks.create({
         pool: this.sparks,
@@ -61,7 +61,7 @@ $.stateWin.step = function () {
       });
     }
 
-    for (var i = 0, length = $.game.isPerf ? 10 : 30; i < length; i++) {
+    for (var i = 0, length = 30; i < length; i++) {
       var size = $.rand(1, 4) / $.game.divisor;
       this.sparks.create({
         pool: this.sparks,
@@ -77,7 +77,7 @@ $.stateWin.step = function () {
       });
     }
 
-    for (var i = 0; i < ($.game.isPerf ? 10 : 20); i++) {
+    for (var i = 0; i < 20; i++) {
       $.game.state.explosions.create({
         pool: $.game.state.explosions,
         x: x + $.rand(0, Math.cos((i / length) * $.TAU) * radius * 2),
@@ -117,7 +117,6 @@ $.stateWin.render = function () {
 
   // track gradients
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.fillStyle($.game.topGradient);
   $.ctx.fillRect(0, 0, $.game.width, $.game.height / 3);
   $.ctx.fillStyle($.game.midGradient);
@@ -141,7 +140,6 @@ $.stateWin.render = function () {
       $.msToString($.game.lastRunTime);
 
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");
   $.ctx.font(`${Math.round(120 / $.game.divisor)}px latowf400`);
@@ -159,7 +157,7 @@ $.stateWin.render = function () {
   );
   $.ctx.font(`${Math.round(34 / $.game.divisor)}px latowf400`);
   $.ctx.fillText(
-    "[ SPACE / CLICK ] RETURN TO MENU",
+    `[ ${$.game.controlString} ] RETURN TO MENU`,
     $.game.width / 2,
     $.game.height - $.game.height / 6 + 70 / $.game.divisor
   );
@@ -167,8 +165,6 @@ $.stateWin.render = function () {
 
   this.sparks.each("render");
   this.explosions.each("render");
-
-  !$.game.isPerf && $.game.renderOverlay();
 };
 
 $.stateWin.pointerdown = function (e) {

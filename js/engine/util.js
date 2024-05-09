@@ -290,3 +290,11 @@ $.get = function (variable) {
     }
   }
 };
+
+$.isTouchDevice = function () {
+  return (
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0
+  );
+};

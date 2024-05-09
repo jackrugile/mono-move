@@ -8,9 +8,13 @@ $.spark.prototype.init = function (opt) {
   this.rotation = $.rand(0, $.TAU);
   this.spin = $.rand(-0.1, 0.1);
 
+  this.hue = opt.hue || 0;
+  this.saturation = opt.saturation || 0;
+  this.lightness = opt.lightness || 100;
+
   this.trail = [];
   this.trailSize = Math.max(Math.round(5 / $.game.dtNorm, 1));
-  this.trailWidth = 1;
+  this.trailWidth = opt.w || 1;
 };
 
 $.spark.prototype.step = function () {
@@ -52,9 +56,10 @@ $.spark.prototype.render = function () {
         $.ctx.lineTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
       }
     }
-    $.ctx.strokeStyle("hsla(0, 0%, 100%, " + this.alpha + ")");
+    $.ctx.strokeStyle(
+      `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${this.alpha})`
+    );
     $.ctx.lineWidth(this.trailWidth);
-    // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
     $.ctx.globalCompositeOperation("lighter");
     $.ctx.stroke();
     $.ctx.restore();
@@ -63,7 +68,10 @@ $.spark.prototype.render = function () {
     $.ctx.translate(this.x - this.w / 2, this.y - this.h / 2);
     $.ctx.scale(this.scale, this.scale);
     $.ctx.rotate(this.rotation);
-    $.ctx.fillStyle("hsla(0, 0%, 100%, " + this.alpha + ")");
+    $.ctx.globalCompositeOperation("lighter");
+    $.ctx.fillStyle(
+      `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${this.alpha})`
+    );
     $.ctx.fillRect(-this.w / 2, -this.w / 2, this.w, this.h);
     $.ctx.restore();
   }

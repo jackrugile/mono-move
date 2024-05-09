@@ -6,7 +6,7 @@ Inspired by classic browser-based games of the past, Mono Move is a single contr
 
 # Controls
 
-**Move:** Space/Click\
+**Move:** Space/Click/Tap\
 **Pause:** P\
 **Mute:** M\
 **Menu:** Esc

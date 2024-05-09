@@ -7,6 +7,10 @@ $.explosion.prototype.init = function (opt) {
   this.scale = 1;
   this.vx = opt.vx || 0;
   this.vy = opt.vy || 0;
+
+  this.hue = opt.hue || 0;
+  this.saturation = opt.saturation || 0;
+  this.lightness = opt.lightness || 100;
 };
 
 $.explosion.prototype.step = function () {
@@ -24,13 +28,13 @@ $.explosion.prototype.step = function () {
 
 $.explosion.prototype.render = function () {
   $.ctx.save();
-  // !$.game.isPerf && $.ctx.globalCompositeOperation("overlay");
   $.ctx.globalCompositeOperation("lighter");
   $.ctx.beginPath();
   $.ctx.translate(this.x, this.y);
   $.ctx.scale(this.scale, this.scale);
-  var alpha = $.game.isPerf ? this.alpha * 0.75 : this.alpha;
-  $.ctx.fillStyle("hsla(0, 0%, 100%, " + alpha + ")");
+  $.ctx.fillStyle(
+    `hsla(${this.hue}, ${this.saturation}%, ${this.lightness}%, ${this.alpha})`
+  );
   $.ctx.arc(0, 0, this.radius, 0, $.TAU);
   $.ctx.fill();
   $.ctx.restore();

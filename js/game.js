@@ -4,11 +4,16 @@ Core
 
 ==============================================================================*/
 
-let divisor = 2;
-divisor = 2560 / window.innerWidth / window.devicePixelRatio;
-let width = 2560 / divisor;
-let height = 1440 / divisor;
-let ratio = height / width;
+let baseWidth = 2560;
+let baseHeight = 1440;
+let baseRatio = baseWidth / baseHeight;
+let widthToFill = Math.min(
+  window.innerWidth * window.devicePixelRatio,
+  baseWidth
+);
+let divisor = baseWidth / widthToFill;
+let width = baseWidth / divisor;
+let height = width / baseRatio;
 let unit = width / 32;
 
 $.game = playground({
@@ -29,15 +34,10 @@ $.game.create = function () {
   $.body = document.querySelector("body");
 
   this.isChrome = window.chrome;
-  this.isPerf = parseInt($.get("perf"), 10) === 1;
   this.isDebug = parseInt($.get("debug"), 10) === 1;
   this.isSelect = parseInt($.get("select"), 10) === 1;
   this.forceLevel = parseInt($.get("level"), 10);
   this.forceTrack = parseInt($.get("track"), 10);
-
-  if (this.isPerf) {
-    $.html.classList.add("perf");
-  }
 
   if (this.isDebug) {
     $.html.classList.add("debug");
@@ -46,6 +46,8 @@ $.game.create = function () {
   if (this.isSelect) {
     $.html.classList.add("select");
   }
+
+  $.game.controlString = $.isTouchDevice() ? "TAP" : "SPACE / CLICK";
 
   this.unit = unit;
   this.lastRunTime = null;
@@ -107,18 +109,6 @@ $.game.create = function () {
     max: 5,
   };
 
-  // vignette
-  this.vignetteGradient = $.ctx.createRadialGradient(
-    this.width / 2,
-    this.height / 2,
-    0,
-    this.width / 2,
-    this.height / 2,
-    this.height
-  );
-  this.vignetteGradient.addColorStop(0, "hsla(0, 0%, 100%, 0.5)");
-  this.vignetteGradient.addColorStop(1, "hsla(0, 0%, 0%, 0.5)");
-
   this.spotlightCanvas = document.createElement("canvas");
   this.spotlightCtx = this.spotlightCanvas.getContext("2d");
   this.spotlightCanvas.width = this.width / 1;
@@ -151,7 +141,7 @@ $.game.create = function () {
     this.heroGradientSize / 2,
     this.heroGradientSize / 2
   );
-  this.heroGradient.addColorStop(0, "hsla(0, 0%, 100%, 0.2)");
+  this.heroGradient.addColorStop(0, "hsla(0, 0%, 100%, 0.3)");
   this.heroGradient.addColorStop(1, "hsla(0, 0%, 100%, 0)");
 
   // block gradient
@@ -197,7 +187,7 @@ $.game.create = function () {
     $.storage.set("deathBest", 99999);
   }
 
-  this.musicVol = 0.6;
+  this.musicVol = 0.5;
 
   if ($.storage.get("mute")) {
     this.sound.setMaster(0);
@@ -304,15 +294,10 @@ $.game.ready = function () {
 
   for (var i = 0; i < this.levels.length; i++) {
     var hue = (i / this.levels.length) * (360 - 1 / this.levels.length);
-    // if (this.isPerf) {
-    //   this.levels[i].color1 = "hsl( " + hue + ", 55%, 45%)";
-    //   this.levels[i].color2 = "hsl( " + (hue - 75) + ", 55%, 45%)";
-    // } else {
-    //   this.levels[i].color1 = "hsl( " + hue + ", 50%, 55%)";
-    //   this.levels[i].color2 = "hsl( " + (hue - 75) + ", 50%, 55%)";
-    // }
-    this.levels[i].color1 = "hsl( " + hue + ", 75%, 55%)";
-    this.levels[i].color2 = "hsl( " + (hue - 75) + ", 75%, 55%)";
+    this.levels[i].hue1 = hue;
+    this.levels[i].hue2 = hue - 75;
+    this.levels[i].color1 = `hsl(${this.levels[i].hue1}, 75%, 50%)`;
+    this.levels[i].color2 = `hsl(${this.levels[i].hue2}, 75%, 50%)`;
     this.levels[i].gradient = $.ctx.createLinearGradient(
       $.game.width,
       0,
@@ -398,12 +383,4 @@ $.game.manageTime = function (dt) {
   this.time += this.dt;
   this.timeMs += this.dtMs;
   this.timeNorm += this.dtNorm;
-};
-
-$.game.renderOverlay = function () {
-  // $.ctx.save();
-  // $.ctx.globalCompositeOperation("overlay");
-  // $.ctx.fillStyle(this.vignetteGradient);
-  // $.ctx.fillRect(0, 0, this.width, this.height);
-  // $.ctx.restore();
 };
