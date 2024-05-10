@@ -71,10 +71,18 @@ $.game.create = function () {
   this.time.shouldRender = false;
 
   // fonts
-  this.loadFonts("lato-medium-webfont", "fa-solid-900");
+  this.loadFonts("lato-medium-webfont");
 
   // images
-  this.loadImages("title", "title-glow");
+  this.loadImages(
+    "icon-home",
+    "icon-pause",
+    "icon-play",
+    "icon-sound-off",
+    "icon-sound-on",
+    "title",
+    "title-glow"
+  );
 
   // sounds
   this.loadSounds(
@@ -112,35 +120,6 @@ $.game.create = function () {
     index: 0,
     max: 5,
   };
-
-  this.spotlightCanvas = document.createElement("canvas");
-  this.spotlightCtx = this.spotlightCanvas.getContext("2d");
-  this.spotlightCanvas.width = this.width / 4;
-  this.spotlightCanvas.height = this.height / 4;
-  this.spotlightGradient = this.spotlightCtx.createRadialGradient(
-    this.spotlightCanvas.width / 2,
-    this.spotlightCanvas.height / 2,
-    0,
-    this.spotlightCanvas.width / 2,
-    this.spotlightCanvas.height / 2,
-    this.spotlightCanvas.height / 2
-  );
-  this.spotlightGradient.addColorStop(0, "hsla(0, 0%, 100%, 0.25)");
-  this.spotlightGradient.addColorStop(1, "hsla(0, 0%, 100%, 0)");
-  // function easeInOut(t) {
-  //   return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
-  // }
-  // for (var t = 0; t <= 1; t += 0.01) {
-  //   let alpha = 0.2 - easeInOut(t) * 0.2;
-  //   this.spotlightGradient.addColorStop(t, "hsla(0, 0%, 100%, " + alpha + ")");
-  // }
-  this.spotlightCtx.fillStyle = this.spotlightGradient;
-  this.spotlightCtx.fillRect(
-    0,
-    0,
-    this.spotlightCanvas.width,
-    this.spotlightCanvas.height
-  );
 
   // hero gradient
   this.heroGradientSize = this.unit;

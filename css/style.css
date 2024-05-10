@@ -11,14 +11,6 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: "fontawesomewf900";
-  src: url("../fonts/fa-solid-900.woff2") format("woff2"),
-    url("../fonts/fa-solid-900.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
 html,
 body {
   background: #000 !important;

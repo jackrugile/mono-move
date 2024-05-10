@@ -72,21 +72,14 @@ $.button.prototype.render = function () {
   $.ctx.arc(this.x, this.y, this.width / 2, 0, $.TAU);
   $.ctx.stroke();
 
-  $.ctx.textBaseline("alphabetic");
-  $.ctx.textAlign("center");
-  $.ctx.font(`${Math.round(this.width * 0.4)}px fontawesomewf900`);
-  if (this.hovering || $.game.isTouchDevice) {
-    $.ctx.fillStyle(
-      `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${1})`
-    );
-  } else {
-    $.ctx.fillStyle(
-      `hsla(${
-        $.game.levels[$.game.state.currentLevel].hue2
-      }, 100%, 85%, ${0.5})`
-    );
-  }
-  $.ctx.fillText(this.text, this.x, this.y + this.width * 0.15);
+  let size = this.width / 2;
+  $.ctx.drawImage(
+    $.game.images[this.image()],
+    this.x - size / 2,
+    this.y - size / 2,
+    size,
+    size
+  );
 
   $.ctx.restore();
 };

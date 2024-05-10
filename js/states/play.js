@@ -27,6 +27,8 @@ $.statePlay.create = function () {
 
   // buttons
   this.buttons = [];
+
+  this.exiting = false;
 };
 
 $.statePlay.enter = function () {
@@ -61,30 +63,26 @@ $.statePlay.enter = function () {
   this.trackChangeTickMax = 35;
 
   // setup hero
-  var x;
-  if (this.currentLevel % 2 === 0) {
-    if (this.currentTrack === 0) {
-      x = -$.game.unit / 2;
-    } else if (this.currentTrack === 1) {
-      x = $.game.width + $.game.unit / 2;
-    } else {
-      x = -$.game.unit / 2;
-    }
-  } else {
-    if (this.currentTrack === 0) {
-      x = $.game.width + $.game.unit / 2;
-    } else if (this.currentTrack === 1) {
-      x = -$.game.unit / 2;
-    } else {
-      x = $.game.width + $.game.unit / 2;
-    }
-  }
+
   this.hero = new $.hero({
-    x: x,
+    x: 0,
     y: this.tracks[this.currentTrack].bot - $.game.unit / 2,
   });
-
-  this.lightPosition = { x: 0, y: 0 };
+  var x;
+  if (this.currentLevel % 2 === 0) {
+    if (this.currentTrack === 1) {
+      x = $.game.width + this.hero.buffer;
+    } else {
+      x = -this.hero.buffer;
+    }
+  } else {
+    if (this.currentTrack === 1) {
+      x = -this.hero.buffer;
+    } else {
+      x = $.game.width + this.hero.buffer;
+    }
+  }
+  this.hero.x = x;
 
   // death tick
   this.deathTickMax = 20;
@@ -114,7 +112,7 @@ $.statePlay.enter = function () {
   // pause button
   let pauseButtonWidth = 120 / $.game.divisor;
   let pauseButtonHeight = 120 / $.game.divisor;
-  let pauseButtonX = $.game.width / 2 - 90 / $.game.divisor;
+  let pauseButtonX = $.game.width / 2 - 80 / $.game.divisor;
   let pauseButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
   this.buttons.push(
     new $.button({
@@ -123,7 +121,7 @@ $.statePlay.enter = function () {
       y: pauseButtonY,
       width: pauseButtonWidth,
       height: pauseButtonHeight,
-      text: "\uf04c",
+      image: () => "icon-pause",
       action: () => {
         this.pause();
       },
@@ -133,7 +131,7 @@ $.statePlay.enter = function () {
   // mute button
   let muteButtonWidth = 120 / $.game.divisor;
   let muteButtonHeight = 120 / $.game.divisor;
-  let muteButtonX = $.game.width / 2 + 90 / $.game.divisor;
+  let muteButtonX = $.game.width / 2 + 80 / $.game.divisor;
   let muteButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
   this.buttons.push(
     new $.button({
@@ -142,9 +140,71 @@ $.statePlay.enter = function () {
       y: muteButtonY,
       width: muteButtonWidth,
       height: muteButtonHeight,
-      text: "\uf028",
+      image: () => ($.storage.get("mute") ? "icon-sound-off" : "icon-sound-on"),
       action: () => {
         $.game.mute();
+      },
+    })
+  );
+
+  // play button
+  let playButtonWidth = 120 / $.game.divisor;
+  let playButtonHeight = 120 / $.game.divisor;
+  let playButtonX = $.game.width / 2 - 160 / $.game.divisor;
+  let playButtonY = $.game.height / 2 + 100 / $.game.divisor;
+  this.buttons.push(
+    new $.button({
+      layer: "pause",
+      x: playButtonX,
+      y: playButtonY,
+      width: playButtonWidth,
+      height: playButtonHeight,
+      image: () => "icon-play",
+      action: () => {
+        this.pause();
+      },
+    })
+  );
+
+  // mute 2 button
+  let muteButton2Width = 120 / $.game.divisor;
+  let muteButton2Height = 120 / $.game.divisor;
+  let muteButton2X = $.game.width / 2;
+  let muteButton2Y = $.game.height / 2 + 100 / $.game.divisor;
+  this.buttons.push(
+    new $.button({
+      layer: "pause",
+      x: muteButton2X,
+      y: muteButton2Y,
+      width: muteButton2Width,
+      height: muteButton2Height,
+      image: () => ($.storage.get("mute") ? "icon-sound-off" : "icon-sound-on"),
+      action: () => {
+        $.game.mute();
+      },
+    })
+  );
+
+  // home button
+  let homeButtonWidth = 120 / $.game.divisor;
+  let homeButtonHeight = 120 / $.game.divisor;
+  let homeButtonX = $.game.width / 2 + 160 / $.game.divisor;
+  let homeButtonY = $.game.height / 2 + 100 / $.game.divisor;
+  this.buttons.push(
+    new $.button({
+      layer: "pause",
+      x: homeButtonX,
+      y: homeButtonY,
+      width: homeButtonWidth,
+      height: homeButtonHeight,
+      image: () => "icon-home",
+      action: () => {
+        // if (!this.exiting) {
+        // console.log("wow");
+        this.exit();
+        // this.exiting = true;
+        // console.log("wow1");
+        // }
       },
     })
   );
@@ -197,15 +257,6 @@ $.statePlay.step = function () {
     this.deathTick -= $.game.dtNorm;
     this.deathTick = Math.max(this.deathTick, 0);
   }
-
-  // spotlight
-  var x = Math.min(Math.max(0, this.hero.x + this.hero.vx), $.game.width);
-  var y = Math.min(Math.max(0, this.hero.y + this.hero.vy), $.game.height);
-
-  this.lightPosition.x +=
-    (x - this.lightPosition.x) * (1 - Math.exp(-0.15 * $.game.dtNorm));
-  this.lightPosition.y +=
-    (y - this.lightPosition.y) * (1 - Math.exp(-0.15 * $.game.dtNorm));
 
   this.handleScreenShake();
   this.blocks.each("step");
@@ -295,22 +346,22 @@ $.statePlay.render = function () {
     $.ctx.fillRect(0, 0, $.game.width, $.game.height);
   }
 
-  // spotlight
-  $.ctx.save();
-  $.ctx.globalCompositeOperation("lighter");
-  $.ctx.drawImage(
-    $.game.spotlightCanvas,
-    this.lightPosition.x - $.game.width / 2,
-    this.lightPosition.y - $.game.height / 2,
-    $.game.width,
-    $.game.height
-  );
-  $.ctx.restore();
+  if (this.paused) {
+    this.renderPause();
+  }
 
   this.renderUI();
 
-  if (this.paused) {
-    this.renderPause();
+  // buttons
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    let button = this.buttons[i];
+    if (
+      button.layer === "all" ||
+      (button.layer === "play" && !this.paused) ||
+      (button.layer === "pause" && this.paused)
+    ) {
+      button.render();
+    }
   }
 };
 
@@ -337,13 +388,7 @@ $.statePlay.pointerdown = function (e) {
 
 $.statePlay.keydown = function (e) {
   if (e.key == "escape") {
-    if (
-      window.confirm(
-        "Are you sure you want to end this game and return to the menu?"
-      )
-    ) {
-      $.game.setState($.stateMenu);
-    }
+    this.exit();
   } else if (e.key == "p") {
     this.pause();
   } else if ($.game.keyTriggers.indexOf(e.key) > -1) {
@@ -457,6 +502,22 @@ $.statePlay.pause = function () {
   }
 };
 
+$.statePlay.exit = function () {
+  if (this.exiting) return;
+
+  this.exiting = true;
+  window.setTimeout(() => {
+    if (
+      window.confirm(
+        "Are you sure you want to end this game and return to the menu?"
+      )
+    ) {
+      $.game.setState($.stateMenu);
+    }
+    this.exiting = false;
+  }, 10);
+};
+
 $.statePlay.renderUI = function () {
   $.ctx.save();
 
@@ -469,47 +530,39 @@ $.statePlay.renderUI = function () {
   }
 
   // tutorial
-  $.ctx.textBaseline("middle");
-  $.ctx.textAlign("center");
-  $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
-  $.ctx.fillStyle(
-    `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
-      this.tutTextAlpha
-    })`
-  );
-  if (this.currentTrack < 1) {
+  if (!this.paused) {
+    $.ctx.textBaseline("middle");
+    $.ctx.textAlign("center");
+    $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
+    $.ctx.fillStyle(
+      `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
+        this.tutTextAlpha
+      })`
+    );
     $.ctx.fillText(
       `[ ${$.game.controlString} ] TO SWITCH GRAVITY`,
       $.game.width / 2,
-      $.game.height / 3 / 2
+      ($.game.height / 3) * 0.7
+    );
+    $.ctx.fillText("AVOID THE OBSTACLES", $.game.width / 2, $.game.height / 2);
+    $.ctx.fillText(
+      "STAY CALM",
+      $.game.width / 2,
+      $.game.height - ($.game.height / 3) * 0.7
     );
   }
-  if (this.currentTrack < 2) {
-    $.ctx.fillText("AVOID THE OBSTACLES", $.game.width / 2, $.game.height / 2);
-  }
-  $.ctx.fillText(
-    "STAY CALM",
-    $.game.width / 2,
-    $.game.height - $.game.height / 3 / 2
-  );
 
   // styles
   $.ctx.textBaseline("top");
   $.ctx.font(`${Math.round(75 / $.game.divisor)}px latowf400`);
 
   // death display
-  // var deathShake = ((this.deathTick / this.deathTickMax) * 10) / $.game.divisor;
   $.ctx.textAlign("left");
   $.ctx.fillStyle(
     `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
       this.textAlpha
     })`
   );
-  // $.ctx.fillText(
-  //   $.pad(this.deaths, 3),
-  //   40 / $.game.divisor + $.rand(-deathShake, deathShake),
-  //   40 / $.game.divisor + $.rand(-deathShake, deathShake)
-  // );
   $.ctx.fillText(
     $.pad(this.deaths, 3),
     40 / $.game.divisor,
@@ -584,23 +637,11 @@ $.statePlay.renderUI = function () {
     );
   }
 
-  // buttons
-  for (let i = 0, len = this.buttons.length; i < len; i++) {
-    let button = this.buttons[i];
-    if (
-      button.layer === "all" ||
-      (button.layer === "play" && !this.paused) ||
-      (button.layer === "pause" && this.paused)
-    ) {
-      button.render();
-    }
-  }
-
   $.ctx.restore();
 };
 
 $.statePlay.renderPause = function () {
-  $.ctx.fillStyle("hsla(0, 0%, 0%, 0.9)");
+  $.ctx.fillStyle("hsla(0, 0%, 0%, 0.65)");
   $.ctx.fillRect(0, 0, $.game.width, $.game.height);
   $.ctx.textAlign("center");
   $.ctx.textBaseline("middle");
@@ -612,12 +653,12 @@ $.statePlay.renderPause = function () {
     $.game.width / 2,
     $.game.height / 2 - 40 / $.game.divisor
   );
-  $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
-  $.ctx.fillText(
-    "[ P ] RESUME                [ M ] MUTE                [ ESC ] MENU",
-    $.game.width / 2,
-    $.game.height / 2 + 80 / $.game.divisor
-  );
+  // $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
+  // $.ctx.fillText(
+  //   "[ P ] RESUME                [ M ] MUTE                [ ESC ] MENU",
+  //   $.game.width / 2,
+  //   $.game.height / 2 + 80 / $.game.divisor
+  // );
 };
 
 $.statePlay.win = function () {
