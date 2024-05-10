@@ -112,23 +112,36 @@ $.stateWin.step = function () {
 
 $.stateWin.render = function () {
   // bg gradient color
-  $.ctx.fillStyle($.game.levels[0].gradient);
-  $.ctx.fillRect(0, 0, $.game.width, $.game.height);
+  $.ctx.drawImage(
+    $.game.levels[0].levelGradientCanvas,
+    0,
+    0,
+    $.game.width,
+    $.game.height
+  );
 
   // track gradients
-  $.ctx.save();
-  $.ctx.fillStyle($.game.topGradient);
-  $.ctx.fillRect(0, 0, $.game.width, $.game.height / 3);
-  $.ctx.fillStyle($.game.midGradient);
-  $.ctx.fillRect(0, $.game.height / 3, $.game.width, $.game.height / 3);
-  $.ctx.fillStyle($.game.botGradient);
-  $.ctx.fillRect(
-    0,
-    $.game.height - $.game.height / 3,
-    $.game.width,
+  $.ctx.drawImage(
+    $.game.trackGradientCanvas,
+    -$.game.trackPadding,
+    -$.game.trackPadding,
+    $.game.width + $.game.trackPadding * 2,
+    $.game.height / 3 + $.game.trackPadding
+  );
+  $.ctx.drawImage(
+    $.game.trackGradientCanvas,
+    -$.game.trackPadding,
+    $.game.height / 3,
+    $.game.width + $.game.trackPadding * 2,
     $.game.height / 3
   );
-  $.ctx.restore();
+  $.ctx.drawImage(
+    $.game.trackGradientCanvas,
+    -$.game.trackPadding,
+    $.game.height - $.game.height / 3,
+    $.game.width + $.game.trackPadding * 2,
+    $.game.height / 3 + $.game.trackPadding
+  );
 
   var timesText = $.game.lastRunDeaths === 1 ? "TIME" : "TIMES",
     statusText =

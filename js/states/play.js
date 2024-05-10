@@ -24,6 +24,9 @@ $.statePlay.create = function () {
 
   // explosions
   this.explosions = new $.pool($.explosion, 0);
+
+  // buttons
+  this.buttons = [];
 };
 
 $.statePlay.enter = function () {
@@ -36,15 +39,12 @@ $.statePlay.enter = function () {
   // screen shake
   this.shake = {
     translate: 0,
-    rotate: 0,
     x: 0,
     y: 0,
     xTarget: 0,
     yTarget: 0,
     xBias: 0,
     yBias: 0,
-    angle: 0,
-    angleTarget: 0,
   };
 
   // deaths
@@ -111,6 +111,44 @@ $.statePlay.enter = function () {
 
   this.winFlag = false;
 
+  // pause button
+  let pauseButtonWidth = 120 / $.game.divisor;
+  let pauseButtonHeight = 120 / $.game.divisor;
+  let pauseButtonX = $.game.width / 2 - 90 / $.game.divisor;
+  let pauseButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
+  this.buttons.push(
+    new $.button({
+      layer: "play",
+      x: pauseButtonX,
+      y: pauseButtonY,
+      width: pauseButtonWidth,
+      height: pauseButtonHeight,
+      text: "\uf04c",
+      action: () => {
+        this.pause();
+      },
+    })
+  );
+
+  // mute button
+  let muteButtonWidth = 120 / $.game.divisor;
+  let muteButtonHeight = 120 / $.game.divisor;
+  let muteButtonX = $.game.width / 2 + 90 / $.game.divisor;
+  let muteButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
+  this.buttons.push(
+    new $.button({
+      layer: "play",
+      x: muteButtonX,
+      y: muteButtonY,
+      width: muteButtonWidth,
+      height: muteButtonHeight,
+      text: "\uf028",
+      action: () => {
+        $.game.mute();
+      },
+    })
+  );
+
   this.tick = 0;
 };
 
@@ -118,8 +156,10 @@ $.statePlay.leave = function () {
   this.blocks.empty();
   this.sparks.empty();
   this.explosions.empty();
+  this.hero.destroy();
 
-  $.game.scrapeVolTarget = 0;
+  $.game.sound.setVolume($.game.scrapeSound, 0);
+
   if (this.paused) {
     this.pausedEndTime = Date.now();
     this.pausedTime += this.pausedEndTime - this.pausedStartTime;
@@ -129,6 +169,19 @@ $.statePlay.leave = function () {
 };
 
 $.statePlay.step = function () {
+  if (!$.game.time.shouldStep) return;
+
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    let button = this.buttons[i];
+    if (
+      button.layer === "all" ||
+      (button.layer === "play" && !this.paused) ||
+      (button.layer === "pause" && this.paused)
+    ) {
+      button.step();
+    }
+  }
+
   if (this.paused) {
     return;
   }
@@ -168,48 +221,45 @@ $.statePlay.step = function () {
 };
 
 $.statePlay.render = function () {
+  if (!$.game.time.shouldRender) return;
+
   // bg gradient color
-  $.ctx.fillStyle($.game.levels[this.currentLevel].gradient);
-  $.ctx.fillRect(0, 0, $.game.width, $.game.height);
+  $.ctx.drawImage(
+    $.game.levels[this.currentLevel].levelGradientCanvas,
+    0,
+    0,
+    $.game.width,
+    $.game.height
+  );
 
   // screen shake
   $.ctx.save();
-  if (!this.paused && (this.shake.translate || this.shake.rotate)) {
-    $.ctx.translate(
-      $.game.width / 2 + this.shake.x,
-      $.game.height / 2 + this.shake.y
-    );
-    $.ctx.rotate(this.shake.angle);
-    $.ctx.translate(
-      -$.game.width / 2 + this.shake.x,
-      -$.game.height / 2 + this.shake.y
-    );
+  if (!this.paused && this.shake.translate) {
+    $.ctx.translate(this.shake.x, this.shake.y);
   }
 
   // track gradients
-  $.ctx.save();
-  $.ctx.fillStyle($.game.topGradient);
-  $.ctx.fillRect(
+  $.ctx.drawImage(
+    $.game.trackGradientCanvas,
     -$.game.trackPadding,
     -$.game.trackPadding,
     $.game.width + $.game.trackPadding * 2,
     $.game.height / 3 + $.game.trackPadding
   );
-  $.ctx.fillStyle($.game.midGradient);
-  $.ctx.fillRect(
+  $.ctx.drawImage(
+    $.game.trackGradientCanvas,
     -$.game.trackPadding,
     $.game.height / 3,
     $.game.width + $.game.trackPadding * 2,
     $.game.height / 3
   );
-  $.ctx.fillStyle($.game.botGradient);
-  $.ctx.fillRect(
+  $.ctx.drawImage(
+    $.game.trackGradientCanvas,
     -$.game.trackPadding,
     $.game.height - $.game.height / 3,
     $.game.width + $.game.trackPadding * 2,
     $.game.height / 3 + $.game.trackPadding
   );
-  $.ctx.restore();
 
   this.blocks.each("render");
   this.hero.render();
@@ -229,7 +279,7 @@ $.statePlay.render = function () {
     $.ctx.beginPath();
     $.ctx.fillStyle(
       "hsla(0, 0%, 100%, " +
-        (this.trackChangeTick / this.trackChangeTickMax) * 1 +
+        (this.trackChangeTick / this.trackChangeTickMax) * 0.75 +
         ")"
     );
     $.ctx.fillRect(0, y, $.game.width, $.game.height / 3);
@@ -250,10 +300,10 @@ $.statePlay.render = function () {
   $.ctx.globalCompositeOperation("lighter");
   $.ctx.drawImage(
     $.game.spotlightCanvas,
-    this.lightPosition.x - $.game.spotlightCanvas.width / 2,
-    this.lightPosition.y - $.game.spotlightCanvas.height / 2,
-    $.game.spotlightCanvas.width,
-    $.game.spotlightCanvas.height
+    this.lightPosition.x - $.game.width / 2,
+    this.lightPosition.y - $.game.height / 2,
+    $.game.width,
+    $.game.height
   );
   $.ctx.restore();
 
@@ -265,11 +315,23 @@ $.statePlay.render = function () {
 };
 
 $.statePlay.pointerdown = function (e) {
-  if (!this.paused) {
-    this.hero.jump();
+  let buttonPressed = false;
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    let button = this.buttons[i];
+    if (
+      button.layer === "all" ||
+      (button.layer === "play" && !this.paused) ||
+      (button.layer === "pause" && this.paused)
+    ) {
+      let result = button.handlePointerDown(e);
+      if (result) {
+        buttonPressed = true;
+      }
+    }
   }
-  if (e.button === "left") {
-  } else if ((e.button = "right")) {
+
+  if (!this.paused && !buttonPressed) {
+    this.hero.jump();
   }
 };
 
@@ -284,7 +346,6 @@ $.statePlay.keydown = function (e) {
     }
   } else if (e.key == "p") {
     this.pause();
-  } else if (e.key == "m") {
   } else if ($.game.keyTriggers.indexOf(e.key) > -1) {
     if (!this.paused) {
       this.hero.jump();
@@ -334,21 +395,10 @@ $.statePlay.handleScreenShake = function () {
     this.shake.yTarget = 0;
   }
 
-  if (this.shake.rotate > 0.001) {
-    this.shake.rotate +=
-      (0 - this.shake.rotate) * (1 - Math.exp(-0.1 * $.game.dtNorm));
-    this.shake.angleTarget = $.rand(-this.shake.rotate, this.shake.rotate);
-  } else {
-    this.shake.angleTarget = 0;
-  }
-
   this.shake.x +=
     (this.shake.xTarget - this.shake.x) * (1 - Math.exp(-0.9 * $.game.dtNorm));
   this.shake.y +=
     (this.shake.yTarget - this.shake.y) * (1 - Math.exp(-0.9 * $.game.dtNorm));
-  this.shake.angle +=
-    (this.shake.angleTarget - this.shake.angle) *
-    (1 - Math.exp(-0.9 * $.game.dtNorm));
 };
 
 $.statePlay.getTrack = function () {
@@ -401,7 +451,7 @@ $.statePlay.pause = function () {
     this.pausedTime += this.pausedEndTime - this.pausedStartTime;
   } else {
     this.paused = true;
-    $.game.scrapeVolTarget = 0;
+    $.game.sound.setVolume($.game.scrapeSound, 0);
     $.html.classList.add("paused");
     this.pausedStartTime = Date.now();
   }
@@ -427,12 +477,16 @@ $.statePlay.renderUI = function () {
       this.tutTextAlpha
     })`
   );
-  $.ctx.fillText(
-    `[ ${$.game.controlString} ] TO SWITCH GRAVITY`,
-    $.game.width / 2,
-    $.game.height / 3 / 2
-  );
-  $.ctx.fillText("AVOID THE OBSTACLES", $.game.width / 2, $.game.height / 2);
+  if (this.currentTrack < 1) {
+    $.ctx.fillText(
+      `[ ${$.game.controlString} ] TO SWITCH GRAVITY`,
+      $.game.width / 2,
+      $.game.height / 3 / 2
+    );
+  }
+  if (this.currentTrack < 2) {
+    $.ctx.fillText("AVOID THE OBSTACLES", $.game.width / 2, $.game.height / 2);
+  }
   $.ctx.fillText(
     "STAY CALM",
     $.game.width / 2,
@@ -444,17 +498,22 @@ $.statePlay.renderUI = function () {
   $.ctx.font(`${Math.round(75 / $.game.divisor)}px latowf400`);
 
   // death display
-  var deathShake = ((this.deathTick / this.deathTickMax) * 10) / $.game.divisor;
+  // var deathShake = ((this.deathTick / this.deathTickMax) * 10) / $.game.divisor;
   $.ctx.textAlign("left");
   $.ctx.fillStyle(
     `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${
       this.textAlpha
     })`
   );
+  // $.ctx.fillText(
+  //   $.pad(this.deaths, 3),
+  //   40 / $.game.divisor + $.rand(-deathShake, deathShake),
+  //   40 / $.game.divisor + $.rand(-deathShake, deathShake)
+  // );
   $.ctx.fillText(
     $.pad(this.deaths, 3),
-    40 / $.game.divisor + $.rand(-deathShake, deathShake),
-    40 / $.game.divisor + $.rand(-deathShake, deathShake)
+    40 / $.game.divisor,
+    40 / $.game.divisor
   );
 
   // level display
@@ -478,11 +537,12 @@ $.statePlay.renderUI = function () {
       this.textAlpha
     })`
   );
-  $.ctx.fillText(
-    "DEATHS",
-    40 / $.game.divisor + $.rand(-deathShake, deathShake),
-    120 / $.game.divisor + $.rand(-deathShake, deathShake)
-  );
+  // $.ctx.fillText(
+  //   "DEATHS",
+  //   40 / $.game.divisor + $.rand(-deathShake, deathShake),
+  //   120 / $.game.divisor + $.rand(-deathShake, deathShake)
+  // );
+  $.ctx.fillText("DEATHS", 40 / $.game.divisor, 120 / $.game.divisor);
 
   // level label
   $.ctx.textAlign("right");
@@ -522,8 +582,21 @@ $.statePlay.renderUI = function () {
       40 / $.game.divisor,
       $.game.height - 35 / $.game.divisor
     );
-    $.ctx.restore();
   }
+
+  // buttons
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    let button = this.buttons[i];
+    if (
+      button.layer === "all" ||
+      (button.layer === "play" && !this.paused) ||
+      (button.layer === "pause" && this.paused)
+    ) {
+      button.render();
+    }
+  }
+
+  $.ctx.restore();
 };
 
 $.statePlay.renderPause = function () {

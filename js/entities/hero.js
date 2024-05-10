@@ -15,19 +15,19 @@ $.hero = function (opt) {
   this.rolling = false;
   this.panningValue = 0;
 
-  this.scratch = document.createElement("canvas");
-  this.scratchCtx = this.scratch.getContext("2d");
-  this.scratch.width = this.radius * 2;
-  this.scratch.height = this.radius * 2;
-  this.scratchCtx.beginPath();
-  this.scratchCtx.arc(this.radius, this.radius, this.radius, 0, $.TAU);
-  this.scratchCtx.fillStyle = "hsla(0, 0%, 100%, 0.2)";
-  this.scratchCtx.fill();
-  this.scratchCtx.beginPath();
-  this.scratchCtx.arc(this.radius * 0.7, this.radius, this.radius, 0, $.TAU);
-  this.scratchCtx.globalCompositeOperation = "destination-out";
-  this.scratchCtx.fillStyle = "#fff";
-  this.scratchCtx.fill();
+  this.crescentCanvas = document.createElement("canvas");
+  this.crescentCtx = this.crescentCanvas.getContext("2d");
+  this.crescentCanvas.width = this.radius * 2;
+  this.crescentCanvas.height = this.radius * 2;
+  this.crescentCtx.beginPath();
+  this.crescentCtx.arc(this.radius, this.radius, this.radius, 0, $.TAU);
+  this.crescentCtx.fillStyle = "hsla(0, 0%, 100%, 0.2)";
+  this.crescentCtx.fill();
+  this.crescentCtx.beginPath();
+  this.crescentCtx.arc(this.radius * 0.7, this.radius, this.radius, 0, $.TAU);
+  this.crescentCtx.globalCompositeOperation = "destination-out";
+  this.crescentCtx.fillStyle = "#fff";
+  this.crescentCtx.fill();
 
   this.tick = 0;
 };
@@ -99,9 +99,9 @@ $.hero.prototype.step = function () {
   }
 
   if (this.rolling) {
-    $.game.scrapeVolTarget = 0.15;
+    $.game.sound.setVolume($.game.scrapeSound, 0.15);
   } else {
-    $.game.scrapeVolTarget = 0;
+    $.game.sound.setVolume($.game.scrapeSound, 0);
   }
   $.game.isChrome &&
     $.game.sound.setPanning($.game.scrapeSound, this.panningValue);
@@ -319,11 +319,15 @@ $.hero.prototype.render = function () {
   $.ctx.save();
   $.ctx.globalCompositeOperation("lighter");
   if (this.vx > 0) {
-    $.ctx.drawImage(this.scratch, this.x - this.radius, this.y - this.radius);
+    $.ctx.drawImage(
+      this.crescentCanvas,
+      this.x - this.radius,
+      this.y - this.radius
+    );
   } else {
     $.ctx.translate(this.x + this.radius, this.y + this.radius);
     $.ctx.scale(-1, 1);
-    $.ctx.drawImage(this.scratch, 0, -this.radius * 2);
+    $.ctx.drawImage(this.crescentCanvas, 0, -this.radius * 2);
   }
   $.ctx.restore();
 
@@ -332,16 +336,16 @@ $.hero.prototype.render = function () {
 
   // general gradient highlight
   $.ctx.save();
-  $.ctx.translate(
+  $.ctx.globalCompositeOperation("lighter");
+  $.ctx.drawImage(
+    $.game.heroGradientCanvas,
     this.x - $.game.heroGradientSize / 2,
-    this.y - $.game.heroGradientSize / 2
+    this.y - $.game.heroGradientSize / 2,
+    $.game.heroGradientSize,
+    $.game.heroGradientSize
   );
-  $.ctx.fillStyle($.game.heroGradient);
-  $.ctx.fillRect(0, 0, $.game.heroGradientSize, $.game.heroGradientSize);
   $.ctx.restore();
 };
-
-$.hero.prototype.destroy = function () {};
 
 $.hero.prototype.jump = function () {
   if (this.grav > 0) {
@@ -495,7 +499,6 @@ $.hero.prototype.die = function () {
   // screen shake
   this.impactAngle = Math.atan2(this.vy, this.vx);
   $.game.state.shake.translate = 5 / $.game.divisor;
-  $.game.state.shake.rotate = 0.01;
   $.game.state.shake.xBias = (Math.cos(this.impactAngle) * 25) / $.game.divisor;
   $.game.state.shake.yBias = (Math.sin(this.impactAngle) * 25) / $.game.divisor;
 
@@ -521,4 +524,9 @@ $.hero.prototype.checkCollisions = function () {
       this.die();
     }
   }
+};
+
+$.hero.prototype.destroy = function () {
+  this.crescentCanvas = null;
+  this.crescentCanvasCtx = null;
 };

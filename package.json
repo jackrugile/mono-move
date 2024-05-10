@@ -6,7 +6,7 @@
   "author": "Jack Rugile <jack@jackrugile.com> (https://jackrugile.com)",
   "license": "MIT",
   "scripts": {
-    "dev": "http-server -c-1 -a localhost"
+    "dev": "http-server -c-1 --log-ip"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
