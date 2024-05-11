@@ -5331,7 +5331,7 @@ PLAYGROUND.LoadingScreen = {
         canvas.width = width * scale;
         canvas.height = height * scale;
 
-        cq.setContextSmoothing(context, false);
+        cq.setContextSmoothing(context, true);
 
         // context.fillStyle = "#fff";
         // context.fillRect(0,0,canvas.width, canvas.height);
@@ -5749,7 +5749,7 @@ PLAYGROUND.LoadingScreen = {
       this.canvas.width = w;
       this.canvas.height = h;
 
-      cq.setContextSmoothing(this.context, false);
+      cq.setContextSmoothing(context, true);
 
       this.clear();
       this.context.drawImage(canvas, 0, 0);
@@ -6716,7 +6716,7 @@ PLAYGROUND.LoadingScreen = {
 
         var temp = cq(100, (10 + fontStyleHeight * 2) | 0);
 
-        cq.setContextSmoothing(temp.context, false);
+        cq.setContextSmoothing(temp.context, true);
 
         temp.font(font).fillStyle("#fff");
         temp.textBaseline("top");

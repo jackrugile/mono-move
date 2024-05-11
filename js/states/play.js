@@ -16,6 +16,8 @@ $.statePlay.create = function () {
     },
   ];
 
+  this.currentLevel = 0;
+
   // blocks
   this.blocks = new $.pool($.block, 0);
 
@@ -112,7 +114,7 @@ $.statePlay.enter = function () {
   // pause button
   let pauseButtonWidth = 120 / $.game.divisor;
   let pauseButtonHeight = 120 / $.game.divisor;
-  let pauseButtonX = $.game.width / 2 - 80 / $.game.divisor;
+  let pauseButtonX = $.game.width / 2;
   let pauseButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
   this.buttons.push(
     new $.button({
@@ -128,30 +130,49 @@ $.statePlay.enter = function () {
     })
   );
 
+  // pause button
+  // let pauseButtonWidth = 120 / $.game.divisor;
+  // let pauseButtonHeight = 120 / $.game.divisor;
+  // let pauseButtonX = $.game.width / 2 - 90 / $.game.divisor;
+  // let pauseButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
+  // this.buttons.push(
+  //   new $.button({
+  //     layer: "play",
+  //     x: pauseButtonX,
+  //     y: pauseButtonY,
+  //     width: pauseButtonWidth,
+  //     height: pauseButtonHeight,
+  //     image: () => "icon-pause",
+  //     action: () => {
+  //       this.pause();
+  //     },
+  //   })
+  // );
+
   // mute button
-  let muteButtonWidth = 120 / $.game.divisor;
-  let muteButtonHeight = 120 / $.game.divisor;
-  let muteButtonX = $.game.width / 2 + 80 / $.game.divisor;
-  let muteButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
-  this.buttons.push(
-    new $.button({
-      layer: "play",
-      x: muteButtonX,
-      y: muteButtonY,
-      width: muteButtonWidth,
-      height: muteButtonHeight,
-      image: () => ($.storage.get("mute") ? "icon-sound-off" : "icon-sound-on"),
-      action: () => {
-        $.game.mute();
-      },
-    })
-  );
+  // let muteButtonWidth = 120 / $.game.divisor;
+  // let muteButtonHeight = 120 / $.game.divisor;
+  // let muteButtonX = $.game.width / 2 + 90 / $.game.divisor;
+  // let muteButtonY = pauseButtonHeight / 2 + 40 / $.game.divisor;
+  // this.buttons.push(
+  //   new $.button({
+  //     layer: "play",
+  //     x: muteButtonX,
+  //     y: muteButtonY,
+  //     width: muteButtonWidth,
+  //     height: muteButtonHeight,
+  //     image: () => ($.storage.get("mute") ? "icon-sound-off" : "icon-sound-on"),
+  //     action: () => {
+  //       $.game.mute();
+  //     },
+  //   })
+  // );
 
   // play button
   let playButtonWidth = 120 / $.game.divisor;
   let playButtonHeight = 120 / $.game.divisor;
-  let playButtonX = $.game.width / 2 - 160 / $.game.divisor;
-  let playButtonY = $.game.height / 2 + 100 / $.game.divisor;
+  let playButtonX = $.game.width / 2 - 180 / $.game.divisor;
+  let playButtonY = $.game.height / 2 + 80 / $.game.divisor;
   this.buttons.push(
     new $.button({
       layer: "pause",
@@ -170,7 +191,7 @@ $.statePlay.enter = function () {
   let muteButton2Width = 120 / $.game.divisor;
   let muteButton2Height = 120 / $.game.divisor;
   let muteButton2X = $.game.width / 2;
-  let muteButton2Y = $.game.height / 2 + 100 / $.game.divisor;
+  let muteButton2Y = $.game.height / 2 + 80 / $.game.divisor;
   this.buttons.push(
     new $.button({
       layer: "pause",
@@ -188,8 +209,8 @@ $.statePlay.enter = function () {
   // home button
   let homeButtonWidth = 120 / $.game.divisor;
   let homeButtonHeight = 120 / $.game.divisor;
-  let homeButtonX = $.game.width / 2 + 160 / $.game.divisor;
-  let homeButtonY = $.game.height / 2 + 100 / $.game.divisor;
+  let homeButtonX = $.game.width / 2 + 180 / $.game.divisor;
+  let homeButtonY = $.game.height / 2 + 80 / $.game.divisor;
   this.buttons.push(
     new $.button({
       layer: "pause",
@@ -199,12 +220,7 @@ $.statePlay.enter = function () {
       height: homeButtonHeight,
       image: () => "icon-home",
       action: () => {
-        // if (!this.exiting) {
-        // console.log("wow");
         this.exit();
-        // this.exiting = true;
-        // console.log("wow1");
-        // }
       },
     })
   );
@@ -217,6 +233,7 @@ $.statePlay.leave = function () {
   this.sparks.empty();
   this.explosions.empty();
   this.hero.destroy();
+  this.buttons.length = 0;
 
   $.game.sound.setVolume($.game.scrapeSound, 0);
 
@@ -319,7 +336,7 @@ $.statePlay.render = function () {
   $.ctx.restore();
 
   // track change flash
-  if (this.trackChangeTick > 0) {
+  if (!this.paused && this.trackChangeTick > 0) {
     var y;
     if (this.currentTrack === 0) {
       y = this.tracks[2].top;
@@ -338,7 +355,7 @@ $.statePlay.render = function () {
   }
 
   // screen death flash
-  if (this.deathTick > 0) {
+  if (!this.paused && this.deathTick > 0) {
     $.ctx.beginPath();
     $.ctx.fillStyle(
       "hsla(0, 0%, 100%, " + (this.deathTick / this.deathTickMax) * 0.5 + ")"
@@ -590,11 +607,6 @@ $.statePlay.renderUI = function () {
       this.textAlpha
     })`
   );
-  // $.ctx.fillText(
-  //   "DEATHS",
-  //   40 / $.game.divisor + $.rand(-deathShake, deathShake),
-  //   120 / $.game.divisor + $.rand(-deathShake, deathShake)
-  // );
   $.ctx.fillText("DEATHS", 40 / $.game.divisor, 120 / $.game.divisor);
 
   // level label
@@ -651,14 +663,8 @@ $.statePlay.renderPause = function () {
   $.ctx.fillText(
     "PAUSED",
     $.game.width / 2,
-    $.game.height / 2 - 40 / $.game.divisor
+    $.game.height / 2 - 80 / $.game.divisor
   );
-  // $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
-  // $.ctx.fillText(
-  //   "[ P ] RESUME                [ M ] MUTE                [ ESC ] MENU",
-  //   $.game.width / 2,
-  //   $.game.height / 2 + 80 / $.game.divisor
-  // );
 };
 
 $.statePlay.win = function () {

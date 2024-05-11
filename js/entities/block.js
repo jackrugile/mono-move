@@ -83,8 +83,6 @@ $.block.prototype.render = function () {
   $.ctx.scale(this.scale, this.scale);
   $.ctx.rotate(this.rotation);
   $.ctx.a(this.alpha);
-  // $.ctx.fillStyle($.game.blockGradient);
-  // $.ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
   $.ctx.drawImage(
     $.game.blockGradientCanvas,
     -this.size / 2,

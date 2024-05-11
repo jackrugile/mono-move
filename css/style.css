@@ -34,7 +34,7 @@ body {
 }
 
 .state-win canvas {
-  animation: party 2000ms linear infinite;
+  animation: party 3000ms linear infinite;
 }
 
 @keyframes party {

@@ -15,6 +15,8 @@ $.stateMenu.create = function () {
       bot: $.game.height,
     },
   ];
+
+  this.buttons = [];
 };
 
 $.stateMenu.enter = function () {
@@ -29,10 +31,30 @@ $.stateMenu.enter = function () {
 
   this.tick = 0;
   this.entered = false;
+
+  // play button
+  let playButtonWidth = 240 / $.game.divisor;
+  let playButtonHeight = 240 / $.game.divisor;
+  let playButtonX = $.game.width / 2;
+  let playButtonY = $.game.height - $.game.height / 6;
+  this.buttons.push(
+    new $.button({
+      layer: "all",
+      x: playButtonX,
+      y: playButtonY,
+      width: playButtonWidth,
+      height: playButtonHeight,
+      image: () => "icon-play",
+      action: () => {
+        $.game.setState($.statePlay);
+      },
+    })
+  );
 };
 
 $.stateMenu.leave = function () {
   $.html.classList.remove("state-menu");
+  this.buttons.length = 0;
 };
 
 $.stateMenu.step = function () {
@@ -49,6 +71,10 @@ $.stateMenu.step = function () {
     $.game.sound.setVolume(sound, 0.5);
     $.game.sound.setPlaybackRate(sound, 1.1);
     this.entered = true;
+  }
+
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    this.buttons[i].step();
   }
 
   this.tick += $.game.dtNorm;
@@ -119,11 +145,6 @@ $.stateMenu.render = function () {
   $.ctx.fillStyle(
     `hsla(${$.game.levels[0].hue2}, 100%, 85%, ${this.titleAlpha})`
   );
-  $.ctx.fillText(
-    `[ ${$.game.controlString} ] TO PLAY`,
-    $.game.width / 2,
-    $.game.height - $.game.height / 6 + 10 / $.game.divisor
-  );
 
   $.ctx.textBaseline("bottom");
   $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
@@ -168,41 +189,18 @@ $.stateMenu.render = function () {
     $.game.width - 40 / $.game.divisor,
     $.game.height - 35 / $.game.divisor
   );
-
   $.ctx.restore();
+
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    this.buttons[i].render();
+  }
 };
 
 $.stateMenu.pointerdown = function (e) {
-  $.game.setState($.statePlay);
-  if (e.button === "left") {
-  } else if ((e.button = "right")) {
-  }
-};
-
-$.stateMenu.keydown = function (e) {
-  if (e.key != "m" && $.game.keyTriggers.indexOf(e.key) > -1) {
-    $.game.setState($.statePlay);
-  }
-};
-
-$.stateMenu.gamepaddown = function (data) {
-  $.game.setState($.statePlay);
-  if (
-    data.button == "up" ||
-    data.button == "right" ||
-    data.button == "down" ||
-    data.button == "left" ||
-    data.button == "l1" ||
-    data.button == "l2"
-  ) {
-  }
-  if (
-    data.button == "1" ||
-    data.button == "2" ||
-    data.button == "3" ||
-    data.button == "4" ||
-    data.button == "r1" ||
-    data.button == "r2"
-  ) {
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    let button = this.buttons[i];
+    if (button) {
+      let result = button.handlePointerDown(e);
+    }
   }
 };

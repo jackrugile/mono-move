@@ -9,6 +9,8 @@ $.hero = function (opt) {
   this.rotation = 0;
   this.jumpTickMax = 30;
   this.jumpTick = 0;
+  this.sparkTickMax = 1;
+  this.sparkTick = 0;
   this.grav = 2 / $.game.divisor;
   this.buffer = this.radius * 10;
   this.impactAngle = 0;
@@ -212,45 +214,47 @@ $.hero.prototype.step = function () {
   this.checkCollisions();
 
   // rolling sparks
-  if (this.rolling) {
-    var size = $.rand(1, 5) / $.game.divisor,
-      angle;
+  this.sparkTick += $.game.dtNorm;
+  if (this.rolling && this.sparkTick > this.sparkTickMax) {
+    this.sparkTick = this.sparkTick - this.sparkTickMax;
 
-    if (this.vx > 0) {
-      if (this.grav > 0) {
-        angle = $.rand($.PI + 0.1, $.PI + 0.6);
+    for (let i = 0; i < 2; i++) {
+      var size = $.rand(1, 5) / $.game.divisor,
+        angle;
+
+      if (this.vx > 0) {
+        if (this.grav > 0) {
+          angle = $.rand($.PI + 0.1, $.PI + 0.5);
+        } else {
+          angle = -$.rand($.PI + 0.1, $.PI + 0.5);
+        }
       } else {
-        angle = -$.rand($.PI + 0.1, $.PI + 0.6);
+        if (this.grav > 0) {
+          angle = $.rand($.PI - 0.1, $.PI - 0.5);
+        } else {
+          angle = -$.rand($.PI - 0.1, $.PI - 0.5);
+        }
       }
-    } else {
-      if (this.grav > 0) {
-        angle = $.rand($.PI - 0.1, $.PI - 0.6);
-      } else {
-        angle = -$.rand($.PI - 0.1, $.PI - 0.6);
-      }
+
+      $.game.state.sparks.create({
+        pool: $.game.state.sparks,
+        x: this.x + $.rand(-5, 5) / $.game.divisor,
+        y: this.grav > 0 ? this.y + this.radius : this.y - this.radius,
+        angle: angle,
+        vel: this.vx,
+        drag: 0.9,
+        decay: 0.02,
+        w: size,
+        h: size,
+        burst: false,
+        hue: $.rand(
+          $.game.levels[$.game.state.currentLevel].hue2,
+          $.game.levels[$.game.state.currentLevel].hue1
+        ),
+        saturation: $.rand(70, 100),
+        lightness: $.rand(50, 80),
+      });
     }
-
-    $.game.state.sparks.create({
-      pool: $.game.state.sparks,
-      x: this.x + $.rand(-5, 5) / $.game.divisor,
-      y:
-        this.grav > 0
-          ? this.y + this.radius + $.rand(0, -5) / $.game.divisor
-          : this.y - this.radius + $.rand(0, 5) / $.game.divisor,
-      angle: angle,
-      vel: this.vx,
-      drag: 0.95,
-      decay: 0.02,
-      w: size,
-      h: size,
-      burst: false,
-      hue: $.rand(
-        $.game.levels[$.game.state.currentLevel].hue2,
-        $.game.levels[$.game.state.currentLevel].hue1
-      ),
-      saturation: $.rand(70, 100),
-      lightness: $.rand(50, 80),
-    });
   }
 
   this.tick += $.game.dtNorm;
@@ -448,7 +452,7 @@ $.hero.prototype.die = function () {
 
   // non-burst
   for (var i = 0, length = 30; i < length; i++) {
-    var size = $.rand(1, 4) / $.game.divisor;
+    var size = $.rand(1, 5) / $.game.divisor;
     $.game.state.sparks.create({
       pool: $.game.state.sparks,
       x: this.x + $.rand(0, Math.cos((i / length) * $.TAU) * this.radius),

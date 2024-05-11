@@ -21,32 +21,73 @@ $.stateWin.create = function () {
 
   // explosions
   this.explosions = new $.pool($.explosion, 0);
+
+  this.buttons = [];
 };
 
 $.stateWin.enter = function () {
   $.html.classList.add("state-win");
-  this.actionTickMax = 150;
+  this.actionTickMax = 80;
   this.tick = 0;
 
   if ($.game.lastRunDeaths < $.storage.get("deathBest")) {
     $.storage.set("deathBest", $.game.lastRunDeaths);
   }
+
+  // play button
+  let playButtonWidth = 240 / $.game.divisor;
+  let playButtonHeight = 240 / $.game.divisor;
+  let playButtonX = $.game.width / 2 - 180 / $.game.divisor;
+  let playButtonY = $.game.height - $.game.height / 6;
+  this.buttons.push(
+    new $.button({
+      layer: "all",
+      x: playButtonX,
+      y: playButtonY,
+      width: playButtonWidth,
+      height: playButtonHeight,
+      image: () => "icon-play",
+      action: () => {
+        $.game.setState($.statePlay);
+      },
+    })
+  );
+
+  // home button
+  let homeButtonWidth = 240 / $.game.divisor;
+  let homeButtonHeight = 240 / $.game.divisor;
+  let homeButtonX = $.game.width / 2 + 180 / $.game.divisor;
+  let homeButtonY = $.game.height - $.game.height / 6;
+  this.buttons.push(
+    new $.button({
+      layer: "all",
+      x: homeButtonX,
+      y: homeButtonY,
+      width: homeButtonWidth,
+      height: homeButtonHeight,
+      image: () => "icon-home",
+      action: () => {
+        $.game.setState($.stateMenu);
+      },
+    })
+  );
 };
 
 $.stateWin.leave = function () {
   this.sparks.empty();
   this.explosions.empty();
+  this.buttons.length = 0;
   $.html.classList.remove("state-win");
 };
 
 $.stateWin.step = function () {
-  if ($.rand(0, 1) > 0.96) {
+  if (Math.random() < 0.04 * $.game.dtNorm) {
     var x = $.rand(0, $.game.width),
       y = $.rand(0, $.game.height),
       radius = $.rand(40, 160) / $.game.divisor;
 
     for (var i = 0, length = 15; i < length; i++) {
-      var size = $.rand(1, 4);
+      var size = $.rand(1, 2);
       this.sparks.create({
         pool: this.sparks,
         x: x + $.rand(0, Math.cos((i / length) * $.TAU) * radius),
@@ -61,8 +102,8 @@ $.stateWin.step = function () {
       });
     }
 
-    for (var i = 0, length = 30; i < length; i++) {
-      var size = $.rand(1, 4) / $.game.divisor;
+    for (var i = 0, length = 60; i < length; i++) {
+      var size = $.rand(1, 5) / $.game.divisor;
       this.sparks.create({
         pool: this.sparks,
         x: x + $.rand(0, Math.cos((i / length) * $.TAU) * radius),
@@ -74,6 +115,9 @@ $.stateWin.step = function () {
         w: size,
         h: size,
         burst: false,
+        hue: 0,
+        saturation: 0,
+        lightness: $.rand(50, 80),
       });
     }
 
@@ -107,6 +151,11 @@ $.stateWin.step = function () {
 
   this.sparks.each("step");
   this.explosions.each("step");
+
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    this.buttons[i].step();
+  }
+
   this.tick += $.game.dtNorm;
 };
 
@@ -160,33 +209,34 @@ $.stateWin.render = function () {
   $.ctx.fillText(
     "VICTORY!",
     $.game.width / 2,
-    $.game.height / 2 + 35 / $.game.divisor
+    $.game.height / 2 - 50 / $.game.divisor
   );
   $.ctx.font(`${Math.round(64 / $.game.divisor)}px latowf400`);
   $.ctx.fillText(
     statusText,
     $.game.width / 2,
-    $.game.height - $.game.height / 6 - 20 / $.game.divisor
-  );
-  $.ctx.font(`${Math.round(34 / $.game.divisor)}px latowf400`);
-  $.ctx.fillText(
-    `[ ${$.game.controlString} ] RETURN TO MENU`,
-    $.game.width / 2,
-    $.game.height - $.game.height / 6 + 70 / $.game.divisor
+    $.game.height / 2 + 80 / $.game.divisor
   );
   $.ctx.restore();
 
   this.sparks.each("render");
   this.explosions.each("render");
+
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    this.buttons[i].render();
+  }
 };
 
 $.stateWin.pointerdown = function (e) {
   if (this.tick < this.actionTickMax) {
     return false;
   }
-  $.game.setState($.stateMenu);
-  if (e.button === "left") {
-  } else if ((e.button = "right")) {
+
+  for (let i = 0, len = this.buttons.length; i < len; i++) {
+    let button = this.buttons[i];
+    if (button) {
+      let result = button.handlePointerDown(e);
+    }
   }
 };
 
@@ -194,35 +244,7 @@ $.stateWin.keydown = function (e) {
   if (this.tick < this.actionTickMax) {
     return false;
   }
-  if (
-    e.key != "m" &&
-    ($.game.keyTriggers.indexOf(e.key) > -1 || e.key == "escape")
-  ) {
+  if (e.key == "escape") {
     $.game.setState($.stateMenu);
-  }
-};
-
-$.stateWin.gamepaddown = function (data) {
-  if (this.tick < this.actionTickMax) {
-    return false;
-  }
-  $.game.setState($.stateMenu);
-  if (
-    data.button == "up" ||
-    data.button == "right" ||
-    data.button == "down" ||
-    data.button == "left" ||
-    data.button == "l1" ||
-    data.button == "l2"
-  ) {
-  }
-  if (
-    data.button == "1" ||
-    data.button == "2" ||
-    data.button == "3" ||
-    data.button == "4" ||
-    data.button == "r1" ||
-    data.button == "r2"
-  ) {
   }
 };

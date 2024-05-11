@@ -11,7 +11,6 @@ let widthToFill = Math.min(
   window.innerWidth * window.devicePixelRatio,
   baseWidth
 );
-// let widthToFill = Math.min(window.innerWidth, baseWidth);
 let divisor = baseWidth / widthToFill;
 let width = baseWidth / divisor;
 let height = width / baseRatio;

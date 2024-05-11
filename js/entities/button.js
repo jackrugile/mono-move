@@ -56,16 +56,13 @@ $.button.prototype.render = function () {
 
   $.ctx.globalCompositeOperation("lighter");
 
+  let currentLevel = $.game.state.currentLevel || 0;
+  let level = $.game.levels[currentLevel];
+
   if (this.hovering || $.game.isTouchDevice) {
-    $.ctx.strokeStyle(
-      `hsla(${$.game.levels[$.game.state.currentLevel].hue2}, 100%, 85%, ${1})`
-    );
+    $.ctx.strokeStyle(`hsla(${level.hue2}, 100%, 85%, ${1})`);
   } else {
-    $.ctx.strokeStyle(
-      `hsla(${
-        $.game.levels[$.game.state.currentLevel].hue2
-      }, 100%, 85%, ${0.5})`
-    );
+    $.ctx.strokeStyle(`hsla(${level.hue2}, 100%, 85%, ${0.5})`);
   }
   $.ctx.lineWidth(5 / $.game.divisor);
   $.ctx.beginPath();
