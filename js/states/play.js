@@ -37,7 +37,7 @@ $.statePlay.enter = function () {
   $.storage.set("playCount", $.storage.get("playCount") + 1);
 
   var sound = $.game.playSound("start-game");
-  $.game.sound.setVolume(sound, 1);
+  $.game.sound.setVolume(sound, 0.4);
   $.game.sound.setPlaybackRate(sound, 1);
 
   // screen shake
@@ -96,12 +96,12 @@ $.statePlay.enter = function () {
   this.paused = false;
 
   this.textAlpha = 0;
-  $.game.tween(this).to({ textAlpha: 1 }, 2, "inOutExpo");
+  $.game.tween(this).wait(0.5).to({ textAlpha: 1 }, 1, "outExpo");
 
   this.tutHidden = false;
   this.tutTextAlpha = 0;
   if (this.currentLevel === 0) {
-    $.game.tween(this).to({ tutTextAlpha: 1 }, 2, "inOutExpo");
+    $.game.tween(this).wait(0.5).to({ tutTextAlpha: 1 }, 1, "outExpo");
   }
 
   this.startTime = Date.now();
@@ -123,6 +123,8 @@ $.statePlay.enter = function () {
       y: pauseButtonY,
       width: pauseButtonWidth,
       height: pauseButtonHeight,
+      enterDuration: 0.5,
+      enterDelay: 0.5,
       image: () => "icon-pause",
       action: () => {
         this.pause();
@@ -669,7 +671,7 @@ $.statePlay.renderPause = function () {
 
 $.statePlay.win = function () {
   var sound = $.game.playSound("win-game");
-  $.game.sound.setVolume(sound, 1);
+  $.game.sound.setVolume(sound, 0.7);
   $.game.sound.setPlaybackRate(sound, 1);
   $.game.setState($.stateWin);
 };

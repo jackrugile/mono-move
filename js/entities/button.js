@@ -3,9 +3,24 @@ $.button = function (opt) {
 
   this.layer = this.layer || "all";
   this.hovering = false;
+  this.tick = 0;
+  this.enterDuration = this.enterDuration || 0;
+  this.enterDelay = this.enterDelay || 0;
+
+  this.alpha = 0;
+  this.scale = 1.1;
 };
 
 $.button.prototype.step = function () {
+  $.game.tween(this).wait(this.enterDelay).to(
+    {
+      alpha: 1,
+      scale: 1,
+    },
+    this.enterDuration,
+    "outExpo"
+  );
+
   if (
     !$.game.isTouchDevice &&
     $.pointInRect(
@@ -21,6 +36,8 @@ $.button.prototype.step = function () {
   } else {
     this.hovering = false;
   }
+
+  this.tick += $.game.dtNorm;
 };
 
 $.button.prototype.handlePointerDown = function (e) {
@@ -44,16 +61,7 @@ $.button.prototype.handlePointerDown = function (e) {
 $.button.prototype.render = function () {
   $.ctx.save();
 
-  // $.ctx.globalCompositeOperation("source-over");
-  // if (this.hovering || $.game.isTouchDevice) {
-  //   $.ctx.fillStyle(`hsla(0, 0%, 0%, 0.25)`);
-  // } else {
-  //   $.ctx.fillStyle(`hsla(0, 0%, 0%, 0)`);
-  // }
-  // $.ctx.beginPath();
-  // $.ctx.arc(this.x, this.y, this.width / 2 - 5 / $.game.divisor / 2, 0, $.TAU);
-  // $.ctx.fill();
-
+  $.ctx.a(this.alpha);
   $.ctx.globalCompositeOperation("lighter");
 
   let currentLevel = $.game.state.currentLevel || 0;
@@ -66,10 +74,10 @@ $.button.prototype.render = function () {
   }
   $.ctx.lineWidth(5 / $.game.divisor);
   $.ctx.beginPath();
-  $.ctx.arc(this.x, this.y, this.width / 2, 0, $.TAU);
+  $.ctx.arc(this.x, this.y, (this.width / 2) * this.scale, 0, $.TAU);
   $.ctx.stroke();
 
-  let size = this.width / 2;
+  let size = (this.width / 2) * this.scale;
   $.ctx.drawImage(
     $.game.images[this.image()],
     this.x - size / 2,

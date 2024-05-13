@@ -75,7 +75,7 @@ $.hero.prototype.step = function () {
       this.vy = 0;
       if (!this.rolling) {
         var sound = $.game.playSound("jump-land");
-        $.game.sound.setVolume(sound, 0.6);
+        $.game.sound.setVolume(sound, 0.3);
         $.game.isChrome && $.game.sound.setPanning(sound, this.panningValue);
         $.game.sound.setPlaybackRate(sound, $.rand(1, 1.2));
       }
@@ -90,7 +90,7 @@ $.hero.prototype.step = function () {
       this.vy = 0;
       if (!this.rolling) {
         var sound = $.game.playSound("jump-land");
-        $.game.sound.setVolume(sound, 0.6);
+        $.game.sound.setVolume(sound, 0.3);
         $.game.isChrome && $.game.sound.setPanning(sound, this.panningValue);
         $.game.sound.setPlaybackRate(sound, $.rand(1.6, 1.7));
       }
@@ -101,7 +101,7 @@ $.hero.prototype.step = function () {
   }
 
   if (this.rolling) {
-    $.game.sound.setVolume($.game.scrapeSound, 0.15);
+    $.game.sound.setVolume($.game.scrapeSound, 0.1);
   } else {
     $.game.sound.setVolume($.game.scrapeSound, 0);
   }
@@ -165,7 +165,7 @@ $.hero.prototype.step = function () {
 
   if (trackChange) {
     var sound = $.game.playSound("track-change");
-    $.game.sound.setVolume(sound, 0.9);
+    $.game.sound.setVolume(sound, 0.6);
     $.game.isChrome && $.game.sound.setPanning(sound, this.panningValue);
     $.game.sound.setPlaybackRate(sound, 0.8);
     $.game.state.trackChangeTick = $.game.state.trackChangeTickMax;
@@ -173,7 +173,7 @@ $.hero.prototype.step = function () {
 
   if (levelChange) {
     var sound = $.game.playSound("level-change");
-    $.game.sound.setVolume(sound, 0.9);
+    $.game.sound.setVolume(sound, 0.6);
     $.game.sound.setPlaybackRate(sound, $.rand(1, 1));
 
     if ($.game.state.currentLevel === $.game.levels.length - 1) {
@@ -354,12 +354,12 @@ $.hero.prototype.render = function () {
 $.hero.prototype.jump = function () {
   if (this.grav > 0) {
     var sound = $.game.playSound("jump");
-    $.game.sound.setVolume(sound, 0.6);
+    $.game.sound.setVolume(sound, 0.5);
     $.game.isChrome && $.game.sound.setPanning(sound, this.panningValue);
     $.game.sound.setPlaybackRate(sound, $.rand(1.9, 2.1));
   } else {
     var sound = $.game.playSound("jump");
-    $.game.sound.setVolume(sound, 0.6);
+    $.game.sound.setVolume(sound, 0.5);
     $.game.isChrome && $.game.sound.setPanning(sound, this.panningValue);
     $.game.sound.setPlaybackRate(sound, $.rand(1.2, 1.4));
   }

@@ -23,6 +23,7 @@ $.spark.prototype.init = function (opt) {
   this.sparkTickTarget = 0;
   this.sparkTick = 0;
   this.sparkTickChance = 0.01;
+  this.sparkleScale = 1;
 };
 
 $.spark.prototype.step = function () {
@@ -69,7 +70,6 @@ $.spark.prototype.step = function () {
 $.spark.prototype.render = function () {
   if (this.burst) {
     $.ctx.save();
-    var sh = 0;
     $.ctx.beginPath();
     for (var i = 0, length = this.trail.length; i < length; i++) {
       var p = this.trail[i];
@@ -77,12 +77,6 @@ $.spark.prototype.render = function () {
         $.ctx.moveTo(p[0], p[1]);
       } else {
         $.ctx.lineTo(p[0], p[1]);
-      }
-
-      if (i == 0) {
-        $.ctx.moveTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
-      } else {
-        $.ctx.lineTo(p[0] + $.rand(-sh, sh), p[1] + $.rand(-sh, sh));
       }
     }
     $.ctx.strokeStyle(
@@ -96,9 +90,14 @@ $.spark.prototype.render = function () {
     $.ctx.save();
     $.ctx.translate(this.x - this.w / 2, this.y - this.h / 2);
     if (this.sparkTick) {
-      let scale = $.rand(1, 3);
-      let scaler = 1 + $.rand(1, 3) * (this.sparkTick / this.sparkTickMax);
-      $.ctx.scale(this.scale * scaler, this.scale * scaler);
+      if (!$.statePlay.paused) {
+        this.sparkleScale =
+          1 + $.rand(1, 3) * (this.sparkTick / this.sparkTickMax);
+      }
+      $.ctx.scale(
+        this.scale * this.sparkleScale,
+        this.scale * this.sparkleScale
+      );
     } else {
       $.ctx.scale(this.scale, this.scale);
     }

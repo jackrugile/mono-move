@@ -21,16 +21,25 @@ $.stateMenu.create = function () {
 
 $.stateMenu.enter = function () {
   var sound = $.game.playSound("end-game");
-  $.game.sound.setVolume(sound, 0.7);
+  $.game.sound.setVolume(sound, 0.4);
   $.game.sound.setPlaybackRate(sound, 1);
 
   $.html.classList.add("state-menu");
 
-  this.titleScale = 2;
+  this.titleScale = 1.1;
   this.titleAlpha = 0;
 
   this.tick = 0;
   this.entered = false;
+
+  $.game.tween(this).wait(0.5).to(
+    {
+      titleScale: 1,
+      titleAlpha: 1,
+    },
+    1,
+    "outExpo"
+  );
 
   // play button
   let playButtonWidth = 240 / $.game.divisor;
@@ -44,6 +53,8 @@ $.stateMenu.enter = function () {
       y: playButtonY,
       width: playButtonWidth,
       height: playButtonHeight,
+      enterDuration: 0.5,
+      enterDelay: 0.5,
       image: () => "icon-play",
       action: () => {
         $.game.setState($.statePlay);
@@ -58,21 +69,6 @@ $.stateMenu.leave = function () {
 };
 
 $.stateMenu.step = function () {
-  if (this.tick >= 35 && !this.entered) {
-    $.game.tween(this).to(
-      {
-        titleScale: 1,
-        titleAlpha: 1,
-      },
-      0.5,
-      "outExpo"
-    );
-    var sound = $.game.playSound("logo-1");
-    $.game.sound.setVolume(sound, 0.5);
-    $.game.sound.setPlaybackRate(sound, 1.1);
-    this.entered = true;
-  }
-
   for (let i = 0, len = this.buttons.length; i < len; i++) {
     this.buttons[i].step();
   }
@@ -138,13 +134,15 @@ $.stateMenu.render = function () {
   $.ctx.realign();
   $.ctx.restore();
 
+  let translateIn = this.titleScale * (80 / $.game.divisor);
+
   $.ctx.save();
   $.ctx.font(`${Math.round(50 / $.game.divisor)}px latowf400`);
   $.ctx.textBaseline("middle");
   $.ctx.textAlign("center");
-  $.ctx.fillStyle(
-    `hsla(${$.game.levels[0].hue2}, 100%, 85%, ${this.titleAlpha})`
-  );
+  // $.ctx.fillStyle(
+  //   `hsla(${$.game.levels[0].hue2}, 100%, 85%, ${this.titleAlpha})`
+  // );
 
   $.ctx.textBaseline("bottom");
   $.ctx.font(`${Math.round(32 / $.game.divisor)}px latowf400`);
@@ -155,19 +153,19 @@ $.stateMenu.render = function () {
   );
   $.ctx.fillText(
     "PLAY COUNT: " + $.formatCommas($.storage.get("playCount")),
-    40 / $.game.divisor,
+    40 / $.game.divisor + translateIn,
     $.game.height - 135 / $.game.divisor
   );
   $.ctx.fillText(
     "DEATH COUNT: " + $.formatCommas($.storage.get("deathCount")),
-    40 / $.game.divisor,
+    40 / $.game.divisor + translateIn,
     $.game.height - 85 / $.game.divisor
   );
   var best = $.storage.get("deathBest");
   best = best == 99999 ? "N/A" : $.formatCommas(best);
   $.ctx.fillText(
     "DEATH BEST: " + best,
-    40 / $.game.divisor,
+    40 / $.game.divisor + translateIn,
     $.game.height - 35 / $.game.divisor
   );
   $.ctx.textAlign("right");
@@ -176,17 +174,17 @@ $.stateMenu.render = function () {
   );
   $.ctx.fillText(
     "BY JACK RUGILE",
-    $.game.width - 40 / $.game.divisor,
+    $.game.width - 40 / $.game.divisor - translateIn,
     $.game.height - 135 / $.game.divisor
   );
   $.ctx.fillText(
     "JACKRUGILE.COM",
-    $.game.width - 40 / $.game.divisor,
+    $.game.width - 40 / $.game.divisor - translateIn,
     $.game.height - 85 / $.game.divisor
   );
   $.ctx.fillText(
     "@JACKRUGILE",
-    $.game.width - 40 / $.game.divisor,
+    $.game.width - 40 / $.game.divisor - translateIn,
     $.game.height - 35 / $.game.divisor
   );
   $.ctx.restore();
