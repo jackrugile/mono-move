@@ -57,6 +57,10 @@ $.stateMenu.enter = function () {
       enterDelay: 0.5,
       image: () => "icon-play",
       action: () => {
+        if (!$.game.musicIsPlaying) {
+          $.game.music.play("music-1", true);
+          $.game.musicIsPlaying = true;
+        }
         $.game.setState($.statePlay);
       },
     })

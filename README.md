@@ -6,7 +6,7 @@ Mono Move is a single control, gravity switching, rage inducing, death tallying 
 
 Made with [Playground.js](https://github.com/rezoner/playground) by [Rezoner](https://github.com/rezoner).
 
-# Controls
+## Controls
 
 **Move:** Space/Click/Tap\
 **Pause:** P\

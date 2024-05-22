@@ -200,6 +200,7 @@ $.game.create = function () {
   }
 
   this.musicVol = 0.5;
+  this.musicIsPlaying = false;
 
   if ($.storage.get("mute")) {
     this.sound.setMaster(0);
@@ -211,8 +212,6 @@ $.game.create = function () {
 };
 
 $.game.ready = function () {
-  this.music.play("music-1", true);
-
   this.levels = [
     {
       map: this.data["level1"],
