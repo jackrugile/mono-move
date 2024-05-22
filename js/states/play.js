@@ -531,7 +531,9 @@ $.statePlay.exit = function () {
         "Are you sure you want to end this game and return to the menu?"
       )
     ) {
-      $.game.setState($.stateMenu);
+      window.setTimeout(() => {
+        $.game.setState($.stateMenu);
+      }, 300);
     }
     this.exiting = false;
   }, 10);

@@ -17,12 +17,19 @@ $.stateMenu.create = function () {
   ];
 
   this.buttons = [];
+  this.hasEntered = false;
 };
 
 $.stateMenu.enter = function () {
-  var sound = $.game.playSound("end-game");
-  $.game.sound.setVolume(sound, 0.4);
-  $.game.sound.setPlaybackRate(sound, 1);
+  if (this.hasEntered) {
+    var sound = $.game.playSound("end-game");
+    $.game.sound.setVolume(sound, 0.4);
+    $.game.sound.setPlaybackRate(sound, 1);
+  }
+
+  if (!this.hasEntered) {
+    this.hasEntered = true;
+  }
 
   $.html.classList.add("state-menu");
 
